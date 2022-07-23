@@ -1,0 +1,75 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{import}
+\import{.}{preamble.tex}
+
+\title{How to Select a Random Point from a High-Dimensional Ball}
+\author{James Zhang}
+\date{July 23, 2022}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+Hey everyone, I'm James. Last year, I watched some Summer of Math Exposition videos, and I really enjoyed them, so this year, I'm gonna make one myself.
+
+One of the videos from last year that caught my attention was \href{https://www.youtube.com/watch?v=4y_nmpv-9lI&list=PLnQX-jgAF5pTkwtUuVpqS5tuWmJ-6ZM-Z&index=6&t=3s}{``The Best Way to Find a Random Point in a Circle"} by Justin. Coincidentally, two of the courses that I took at university this year mentioned higher-dimensional volumes and geometry. So in this video, I'm going to extend Justin's results and talk about how to select a random point from a high-dimensional ball.
+
+\section{Definition of a Ball}
+
+A high-dimensional ball is a generalization of a circle. A unit circle (and its interior) has equation $x^2 + y^2 = 1$. An $n$-dimensional ball has equation $x_1^2 + \ldots + x_n^2 = 1$.
+
+\section{Rejection Sampling}
+
+The first method that Justin mentioned in his video was rejection sampling. That generalizes easily to $n$ dimensions, so I'm going to implement it. The idea of rejection sampling is that we select a random point from the unit box, where each coordinate is selected uniformly at random between -1 and 1. If the point selected happened to be in the unit ball, we're done. If not, we reject that point and select another one. Let's see how this goes:
+
+I selected 3141 points for dimensions 1 to 8 and recorded the average number of trials. Here are the results:
+
+% Results from Jupyter Notebook
+
+% [1.0, 1.9872652021649155, 6.037567653613499, 23.28430436166826, 122.61095192613817, 711.0792741165234, 5022.741483603948, 40197.09328239414]
+
+As you can see, the number of trials seem to grow exponentially with dimension. In 8 dimensions, each point on average requires way over 10,000 trials. We can imagine that in higher dimensions, it takes even more trials. How did that happen?
+
+\section{Direct Calculation and Recurrence Relation of the Volume of the Unit Ball}
+
+% Reference: Vector Calculus, Linear Algebra, and Differential Forms: A Unified Approach by Hubbard & Hubbard
+
+\[
+  c_n = \int_{-1}^1 (1 - t^2)^{\frac{n-1}{2}} \, dt
+\]
+
+Trig substitution with $t = \sin(\theta)$ gives
+\begin{align*}
+  c_n     & = \int_{-\frac{\pi}{2}}^{\frac{\pi}{2}} \cos^{n}(\theta) \, d\theta   \\
+  c_{n-2} & = \int_{-\frac{\pi}{2}}^{\frac{\pi}{2}} \cos^{n-2}(\theta) \, d\theta
+\end{align*}
+
+Integration by parts for $c_n$, with $u = \cos^{n-1}(\theta)$ and $dv = \cos(\theta) \, d\theta$ gives
+
+\[
+  c_n = \cos^{n-1}(\theta) \sin(\theta) \bigg|_{-\frac{\pi}{2}}^{\frac{\pi}{2}} + \int_{-\frac{\pi}{2}}^{\frac{\pi}{2}} \sin^2(\theta) (n-1) \cos^{n-2}(\theta) \, d\theta
+\]
+
+The first term on the right hand side is 0, so
+\[
+  c_n = (n-1) \int_{-\frac{\pi}{2}}^{\frac{\pi}{2}} \sin^2(\theta) \cos^{n-2}(\theta) \, d\theta
+\]
+
+Recall that $\sin^2(\theta) = 1 - \cos^2(\theta)$, so
+\[
+  c_n = (n-1) \bracks{\int_{-\frac{\pi}{2}}^{\frac{\pi}{2}} \cos^{n-2}(\theta) \, d\theta - \int_{-\frac{\pi}{2}}^{\frac{\pi}{2}} \cos^n(\theta) \, d\theta} = (n-1) c_{n-2} - (n-1) c_n
+\]
+
+Rearranging, we get
+\[
+  c_n = \frac{n-1}{n}c_{n-2}.
+\]
+
+\section{Do Spherical Coordinates Work?}
+
+\section{Rotational Invariance and the Gaussian Distribution}
+
+\end{document}

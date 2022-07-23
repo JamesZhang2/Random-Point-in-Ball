@@ -1,0 +1,131 @@
+\usepackage{amsmath,amssymb}
+%\usepackage{mathabx}
+\usepackage[margin=1in]{geometry}
+\usepackage{titlesec}
+\usepackage{amsthm}
+\usepackage{tikz-cd}
+\usepackage[]{mathrsfs}
+\usepackage{mathtools}
+\usepackage{todonotes}
+\usepackage{calc}
+\usepackage{blindtext}
+
+\usepackage{graphicx}
+\graphicspath{ {./images/} }
+
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=cyan,
+  filecolor=red,
+  urlcolor=blue,
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Problem Counter
+
+\newcounter{problem}[section]
+\newenvironment{problem}[1][]{\refstepcounter{problem}\par\medskip
+  \noindent \textbf{Problem~\theproblem. #1} \rmfamily}{\medskip}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Theorem Styles
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[problem]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem*{theorem*}{Theorem}
+\newtheorem*{lemma*}{Lemma}
+
+\theoremstyle{definition}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{conjecture}{Conjecture}[section]
+\newtheorem{question}{Question}[section]
+\newtheorem*{question*}{Question}
+\newtheorem{example}[theorem]{Example}
+
+\theoremstyle{remark}
+\newtheorem*{claim}{Claim}
+\newtheorem*{remark}{Remark}
+\newtheorem*{note}{Note}
+\newtheorem*{exercise}{Exercise}
+\newtheorem*{notation*}{Nt}
+
+\renewcommand*{\proofname}{Proof}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+% mathbb
+
+\newcommand{\N}{\mathbb{N}} % natural numbers
+\newcommand{\Z}{\mathbb{Z}} % integers
+\newcommand{\R}{\mathbb{R}} % real numbers
+\newcommand{\Q}{\mathbb{Q}} % rational numbers
+\newcommand{\C}{\mathbb{C}} % complex numbers
+\newcommand{\E}{\mathbb{E}} % expected value
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Math operators
+
+\DeclareMathOperator{\im}{Im} % image
+\DeclareMathOperator{\tr}{tr} % trace
+\DeclareMathOperator{\id}{id} % identity map (lowercase)
+\DeclareMathOperator{\Id}{Id} % identity map/matrix
+\DeclareMathOperator{\rank}{rank} % rank
+\DeclareMathOperator{\sgn}{sgn}
+\DeclareMathOperator{\sign}{sign}
+\DeclareMathOperator{\sech}{sech}
+\DeclareMathOperator{\csch}{csch}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% blu-bird & James
+
+\newcommand{\eps}{\varepsilon}
+\newcommand{\vphi}{\varphi}
+\newcommand{\ind}[1]{\mathbf{1}_{#1}}
+\newcommand{\vol}{\text{vol}}
+\newcommand{\dpav}[1]{\mathcal{D}_{#1}}
+\newcommand{\dvol}[2]{|d^{#1}\mathbf{#2}|}
+
+\newcommand{\bfx}{\mathbf{x}}
+\newcommand{\bfy}{\mathbf{y}}
+\newcommand{\bfz}{\mathbf{z}}
+\newcommand{\bfu}{\mathbf{u}}
+
+\newcommand{\xypoint}[2]{\ensuremath{\begin{pmatrix} #1 \\ #2 \end{pmatrix}}}
+\newcommand{\xyzpoint}[3]{\ensuremath{\begin{pmatrix} #1 \\ #2 \\ #3 \end{pmatrix}}}
+\newcommand{\xyzwpoint}[4]{\ensuremath{\begin{pmatrix} #1 \\ #2 \\ #3 \\ #4 \end{pmatrix}}}
+\newcommand{\xymatrix}[2]{\ensuremath{\begin{bmatrix} #1 \\ #2 \end{bmatrix}}}
+\newcommand{\xyzmatrix}[3]{\ensuremath{\begin{bmatrix} #1 \\ #2 \\ #3 \end{bmatrix}}}
+\newcommand{\xyzwmatrix}[4]{\ensuremath{\begin{bmatrix} #1 \\ #2 \\ #3 \\ #4 \end{bmatrix}}}
+\newcommand{\xyrowmat}[2]{\ensuremath{\begin{bmatrix} #1 & #2 \end{bmatrix}}}
+\newcommand{\xyzrowmat}[3]{\ensuremath{\begin{bmatrix} #1 & #2 & #3 \end{bmatrix}}}
+
+\newcommand{\pzpx}{\frac{\partial z}{\partial x}}
+\newcommand{\pzpy}{\frac{\partial z}{\partial y}}
+\newcommand{\ppzpxx}{\frac{\partial^2 z}{\partial x^2}}
+\newcommand{\ppzpxy}{\frac{\partial^2 z}{\partial x \partial y}}
+\newcommand{\ppzpyy}{\frac{\partial^2 z}{\partial y^2}}
+
+\newcommand{\ignore}[1]{}  % from Charles
+\newcommand{\parens}[1]{\ensuremath{\left( #1 \right)}}
+\newcommand{\bracks}[1]{\ensuremath{\left[ #1 \right]}}
+\newcommand{\braces}[1]{\ensuremath{\left\{ #1 \right\}}}
+\newcommand{\set}[1]{\braces{#1}}
+\newcommand{\powset}[1]{\mathcal{P}\parens{#1}}
+
+\newcommand{\floor}[1]{\left\lfloor #1 \right\rfloor}
+\newcommand{\ceil}[1]{\left\lceil #1 \right\rceil}
+\newcommand{\verts}[1]{\left\lvert #1 \right\rvert} % | #1 |
+\newcommand{\Verts}[1]{\left\lVert #1 \right\rVert} % || #1 ||
+\newcommand{\abs}[1]{\verts{#1}}
+\newcommand{\size}[1]{\verts{#1}}
+\newcommand{\norm}[1]{\Verts{#1}}
+
+\newcommand{\extd}{\mathbf{d}}
+
+\renewcommand{\implies}{\Rightarrow}
+\renewcommand{\iff}{\Leftrightarrow}
+
+\newcommand{\collab}[1]{I discussed this problem set with #1.}
