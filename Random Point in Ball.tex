@@ -17,13 +17,13 @@ Hey everyone, I'm James. Last year, I watched some Summer of Math Exposition vid
 
 One of the videos from last year that caught my attention was \href{https://www.youtube.com/watch?v=4y_nmpv-9lI&list=PLnQX-jgAF5pTkwtUuVpqS5tuWmJ-6ZM-Z&index=6&t=3s}{``The Best Way to Find a Random Point in a Circle"} by Justin. Coincidentally, two of the courses that I took at university this year mentioned higher-dimensional volumes and geometry. So in this video, I'm going to extend Justin's results and talk about how to select a random point from a high-dimensional ball.
 
-\section{Definition of a Ball}
-
-A high-dimensional ball is a generalization of a circle. A unit circle (and its interior) has equation $x^2 + y^2 = 1$. An $n$-dimensional ball has equation $x_1^2 + \ldots + x_n^2 = 1$.
+First of all, let me clarify what I mean by a high-dimensional ball. A ball is a generalization of a circle. A unit circle (and its interior) has equation $x^2 + y^2 = 1$. An $n$-dimensional ball has equation $x_1^2 + \ldots + x_n^2 = 1$.
 
 \section{Rejection Sampling}
 
-The first method that Justin mentioned in his video was rejection sampling. That generalizes easily to $n$ dimensions, so I'm going to implement it. The idea of rejection sampling is that we select a random point from the unit box, where each coordinate is selected uniformly at random between -1 and 1. If the point selected happened to be in the unit ball, we're done. If not, we reject that point and select another one. Let's see how this goes:
+The first method that Justin mentioned in his video was rejection sampling. That generalizes easily to $n$ dimensions, so I'm going to implement it. The idea of rejection sampling is that we select a random point from a box, where each coordinate is selected uniformly at random between -1 and 1. If the point selected happened to be in the unit ball, we're done. If not, we reject that point and select another one. Let's see how this goes:
+
+\subsection{Python Simulation}
 
 I selected 3141 points for dimensions 1 to 8 and recorded the average number of trials. Here are the results:
 
@@ -31,9 +31,9 @@ I selected 3141 points for dimensions 1 to 8 and recorded the average number of 
 
 % [1.0, 1.9872652021649155, 6.037567653613499, 23.28430436166826, 122.61095192613817, 711.0792741165234, 5022.741483603948, 40197.09328239414]
 
-As you can see, the number of trials seem to grow exponentially with dimension. In 8 dimensions, each point on average requires way over 10,000 trials. We can imagine that in higher dimensions, it takes even more trials. How did that happen?
+As you can see, the number of trials seems to grow exponentially with dimension. In 8 dimensions, each point on average requires way over 10,000 trials. We can imagine that in higher dimensions, it takes even more trials. How did that happen?
 
-\section{Direct Calculation and Recurrence Relation of the Volume of the Unit Ball}
+\subsection{Volume of the Unit Ball}
 
 % Reference: Vector Calculus, Linear Algebra, and Differential Forms: A Unified Approach by Hubbard & Hubbard
 
@@ -68,8 +68,75 @@ Rearranging, we get
   c_n = \frac{n-1}{n}c_{n-2}.
 \]
 
-\section{Do Spherical Coordinates Work?}
+\section{Sphere and Distance Method}
 
-\section{Rotational Invariance and the Gaussian Distribution}
+Another method to select a random point from a circle that Justin mentioned was to turn to polar coordinates. We first choose $\theta$ uniformly, then choose $r$ so that the points $(r, \theta)$ are distributed uniformly in the circle.
+
+We can try to apply this idea to higher dimensions. In three dimensions, we can try to choose $r, \theta, \vphi$ in some way such that the points represented by $(r, \theta, \vphi)$ in spherical coordinates are distributed uniformly in a three-dimensional ball. However, we can't choose $\vphi$ uniformly because when $\vphi$ is close to $\frac{\pi}{2}$, that is, we're choosing points near the equator, we expect to see way more points than when $\vphi$ is close to 0 or $\pi$ (or near the poles). There are higher-dimensional analogs of the spherical coordinates in higher dimensions, but we can imagine that as the dimensions go up, it would be increasingly difficult to keep track of the distributions of each variable.
+
+Instead, we take a similar approach: First choose a direction uniformly at random, and then choose a number $r$ between 0 and 1. The random point will be in that direction with a distance $r$ from the origin.
+
+Choosing a random direction in n-dimensional space is the same as choosing a random point on the n-dimensional unit sphere. A sphere is the boundary of a ball, and points on the unit sphere satisfy $x_1^2 + \ldots + x_n^2 = 1$.
+
+So now, our task is divided into two parts: Choosing a random point on the unit sphere and choosing a distance from the origin. We'll focus on the first part for now and worry about choosing a distance later.
+
+\subsection{Random Point on Sphere}
+
+\subsubsection{Failed Attempt}
+
+The first way that comes to mind is this: We choose a random vector from the box $[-1, 1]^n$ where each component is chosen uniformly in $[-1, 1]$. Then we normalize this vector by dividing away its length. The resulting vector is a unit vector, so it lies on the unit sphere.
+
+This seems like a good approach, but after some thought, we can see that the random points generated in this way aren't distributed uniformly on the sphere. Intuitively, It is more likely to choose a point near the diagonals of the box than near the center of the faces. Let's look at a two-dimensional example:
+
+% Draw picture of square
+
+The distance from the origin to $(1, 1)$ is $\sqrt(2)$, which is about 1.4 times the distance from the origin to the center of an edge of the square. For $n$ dimensions, the diagonal is $\sqrt{n}$ times larger.
+
+\subsubsection{Rotational Invariance and the Multivariate Normal Distribution}
+
+To figure out a valid way to choose a point uniformly on the sphere, we need to think outside the box. Literally. The problem with the box is that it is not rotationally invariant: If we rotate the box by a certain amount, the rotated box doesn't look the same as the original. Meanwhile, the ball and the sphere are all rotationally invariant: However we rotate them, they look the same.
+
+Every rotation in $\R^n$ can be characterized by an orthogonal matrix. An orthogonal matrix is a matrix whose columns (or rows) form an orthonormal basis. (Note: All rotations are isometries, but not all isometries are rotations.) For instance, in $\R^2$, we can express a rotation like this:
+\[
+  Q = \begin{bmatrix}
+    \cos(\theta) & -\sin(\theta) \\
+    \sin(\theta) & \cos(\theta)
+  \end{bmatrix}
+\]
+
+The columns $\xymatrix{\cos(\theta)}{\sin(\theta)}$ and $\xymatrix{-\sin(\theta)}{\cos(\theta)}$ are orthonormal because the length of both vectors are
+\[
+  \sqrt{\cos^2(\theta) + \sin^2(\theta)} = 1
+\]
+and the dot product between the two vectors is 0. Similarly, the rows of $Q$ are also orthonormal.
+
+% Manim rotation animation
+
+Is there any distribution that is rotationally invariant? Introducing the multivariate normal distribution. As you might know, the probability density function of a normal random variable is shaped like a bell curve. Here, we're using the standard multivariate normal distribution, denoted $\mathcal{N}(\vec{0}, I)$, which is a vector of independent random variables, where each component follows the standard normal distribution $\mathcal{N}(0, 1)$. (Here I'm using ``normal'' and ``Gaussian'' interchangeably.)
+
+You might also know that any linear combination of independent normal random variables is still a normal random variable. We can use this fact to show that the standard multivariate normal distribution is rotationally invariant:
+
+Suppose $Q$ is the orthogonal matrix representing an arbitrary rotation in $\R^n$, and
+$X = \begin{bmatrix}
+    X_1 \\ \vdots \\ X_n
+  \end{bmatrix}$ is a standard multivariate normal. Then each $X_i$ is a Gaussian with mean 0 and variance 1.
+
+Let $q_{m1}, \ldots, q_{mn}$ be the $m$th row of $Q$. Then the $m$th element of $QX$ is $Y_m = q_{m1} X_1 + \ldots + q_{mn} X_n$. Since $Q$ is orthogonal, $q_{m1}^2 + \ldots + q_{mn}^2 = 1$.
+
+Since the $X_i$'s are independent Gaussian random variables, the linear combination is still a Gaussian random variable. Moreover, by linearity of expectation, the mean of $Y_m$ is $\mu(Y_m) = q_{m1} \mu(X_1) + \ldots + q_{mn} \mu(X_n) = 0$, and by independence, the variance of $Y_m$ is $\Var(Y_m) = q_{m1}^2 \Var(X_1) + \ldots + q_{mn}^2 \Var(X_n) = q_{m1}^2 + \ldots + q_{mn}^2 = 1$.
+
+We have shown that $Y_m$ is a normal random variable. This is the same for each element of $QX$, so $QX$ is still a standard multivariate normal. Thus $X$ is rotationally invariant.
+
+Here's a graph of the joint density function of a 2-dimensional standard multivariate normal random variable. We can see from the density function that the distribution is indeed rotationally invariant.
+
+% Insert python graph here
+
+\subsection{Choosing the Distance}
+
+\subsection{Python Simulation}
+
+\section{Reflection}
+
+\section{Acknowledgements}
 
 \end{document}

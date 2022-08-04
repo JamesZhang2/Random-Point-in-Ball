@@ -22,17 +22,10 @@
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Problem Counter
-
-\newcounter{problem}[section]
-\newenvironment{problem}[1][]{\refstepcounter{problem}\par\medskip
-  \noindent \textbf{Problem~\theproblem. #1} \rmfamily}{\medskip}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Theorem Styles
 
 \theoremstyle{plain}
-\newtheorem{theorem}{Theorem}[problem]
+\newtheorem{theorem}{Theorem}[section]
 \newtheorem{lemma}[theorem]{Lemma}
 \newtheorem{corollary}[theorem]{Corollary}
 \newtheorem*{theorem*}{Theorem}
@@ -102,12 +95,6 @@
 \newcommand{\xyrowmat}[2]{\ensuremath{\begin{bmatrix} #1 & #2 \end{bmatrix}}}
 \newcommand{\xyzrowmat}[3]{\ensuremath{\begin{bmatrix} #1 & #2 & #3 \end{bmatrix}}}
 
-\newcommand{\pzpx}{\frac{\partial z}{\partial x}}
-\newcommand{\pzpy}{\frac{\partial z}{\partial y}}
-\newcommand{\ppzpxx}{\frac{\partial^2 z}{\partial x^2}}
-\newcommand{\ppzpxy}{\frac{\partial^2 z}{\partial x \partial y}}
-\newcommand{\ppzpyy}{\frac{\partial^2 z}{\partial y^2}}
-
 \newcommand{\ignore}[1]{}  % from Charles
 \newcommand{\parens}[1]{\ensuremath{\left( #1 \right)}}
 \newcommand{\bracks}[1]{\ensuremath{\left[ #1 \right]}}
@@ -123,9 +110,7 @@
 \newcommand{\size}[1]{\verts{#1}}
 \newcommand{\norm}[1]{\Verts{#1}}
 
-\newcommand{\extd}{\mathbf{d}}
+\newcommand{\Var}{\mathrm{Var}}
 
 \renewcommand{\implies}{\Rightarrow}
 \renewcommand{\iff}{\Leftrightarrow}
-
-\newcommand{\collab}[1]{I discussed this problem set with #1.}

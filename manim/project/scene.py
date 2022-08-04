@@ -1,5 +1,3 @@
-from telnetlib import DO
-from turtle import down
 from manim import *
 
 
