@@ -35,11 +35,22 @@ As you can see, the number of trials seems to grow exponentially with dimension.
 
 \subsection{Volume of the Unit Ball}
 
+Let $X$ be the number of trials that we need to select a point in the ball. Since each trial is independent, and we repeat until we succeed, $X$ is a geometric random variable. The probability that we select a point in the ball in any particular trial is equal to the ratio between the $n$-dimensional volume of the ball and the $n$-dimensional volume of the box. The box has side length 2, so its $n$-dimensional volume is $2^n$. What is the $n$-dimensional volume of the ball?
+
 % Reference: Vector Calculus, Linear Algebra, and Differential Forms: A Unified Approach by Hubbard & Hubbard
 
+Let $\beta_n$ be the volume of the $n$-dimensional unit ball. We will use integration and Fubini's Theorem to find out $\beta_n$.
+
+We first choose a variable, say $x_1$, and we integrate it from -1 to 1. We cut the ball into small slices, where each slice can be approximated by a small cylinder. The height of the cylinder is $dx_1$, and the base is an $(n-1)$-dimensional ball. In the special case of three dimensions, the base of each slice is a circle. The radius of the base is $r = \sqrt{1 - x_1^2}$ by the Pythagorean Theorem. Since volume scales appropriately according to dimension, the $(n-1)$-dimensional volume of the base is $r^{n-1} \beta_{n-1}$, where $\beta_{n-1}$ is the volume of the $(n-1)$-dimensional unit ball. Thus,
+\[
+  \beta_n = \int_{-1}^1 r^{n-1} \beta_{n-1} \, dx_1 = \beta_{n-1} \int_{-1}^1 (1 - x_1^2)^{\frac{n-1}{2}} \, dx_1.
+\]
+
+We pulled out $\beta_{n-1}$ from the integral because it is just a constant. It remains to figure out the integral
 \[
   c_n = \int_{-1}^1 (1 - t^2)^{\frac{n-1}{2}} \, dt
 \]
+because then we have the recurrence relation $\beta_n = c_n \beta_{n - 1}$.
 
 Trig substitution with $t = \sin(\theta)$ gives
 \begin{align*}
@@ -68,6 +79,14 @@ Rearranging, we get
   c_n = \frac{n-1}{n}c_{n-2}.
 \]
 
+The base cases are $c_1 = 2$ (by simple integration) and $c_2 = \frac{\pi}{2}$ (area of a semicircle). From geometry, we have $\beta_1 = 2$, $\beta_2 = \pi$, $\beta_3 = \frac{4}{3}\pi$.
+
+Recall that $\beta_n = c_n \beta_{n - 1}$. In other words, the ratio between $\beta_n$ and $\beta_{n - 1}$ is $c_n$. If $c_n$ were a constant that is less than 2, say 1.5, then every time we raise a dimension, we double the volume of the box, but the volume of the ball only increases by a factor of 1.5. The ratio between the volume of the ball and the volume of the box will thus decrease by a factor of $\frac{3}{4}$. Since the probability that a particular trial succeeds is equal to that ratio, the probability will decay exponentially by a factor of $\frac{3}{4}$ each time.
+
+However, in reality, $c_n = \frac{n-1}{n}c_{n-2}$, and since $\frac{n-1}{n} < 1$, this means that the multiplier $c_n$ is not a constant: it decreases every time! In fact, there will be an $n$ such that $c_n < 1$, and from that point on, the volume of the ball decreases as we increase dimension. (Here, we're talking about the numerical value of the volume, ignoring the units.)
+
+Therefore, the ratio and thus the probability decays faster than exponentially. Since for a geometric random variable $X$ with success probability $p$, the expected value of $X$ is $\frac{1}{p}$, this implies that the expected number of trials needed to sample a valid point increases faster than exponentially.
+
 \section{Sphere and Distance Method}
 
 Another method to select a random point from a circle that Justin mentioned was to turn to polar coordinates. We first choose $\theta$ uniformly, then choose $r$ so that the points $(r, \theta)$ are distributed uniformly in the circle.
@@ -90,7 +109,7 @@ This seems like a good approach, but after some thought, we can see that the ran
 
 % Draw picture of square
 
-The distance from the origin to $(1, 1)$ is $\sqrt(2)$, which is about 1.4 times the distance from the origin to the center of an edge of the square. For $n$ dimensions, the diagonal is $\sqrt{n}$ times larger.
+The distance from the origin to $(1, 1)$ is $\sqrt(2)$, which is about 1.4 times the distance from the origin to the center of an edge of the square. For $n$ dimensions, the diagonal is $\sqrt{n}$ times larger. However, the odds are even worse than that. Think of two small cones of regions, one with height 1 and the other with height $\sqrt{n}$. Each cone of region will map to the same part of the sphere, but the ratio between the volumes of the cones is $(\sqrt{n})^n$. This again grows faster than exponentially.
 
 \subsubsection{Rotational Invariance and the Multivariate Normal Distribution}
 
@@ -130,6 +149,8 @@ We have shown that $Y_m$ is a normal random variable. This is the same for each 
 Here's a graph of the joint density function of a 2-dimensional standard multivariate normal random variable. We can see from the density function that the distribution is indeed rotationally invariant.
 
 % Insert python graph here
+
+Now we can normalize...
 
 \subsection{Choosing the Distance}
 
