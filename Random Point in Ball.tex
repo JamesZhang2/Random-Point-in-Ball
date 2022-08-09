@@ -3,7 +3,7 @@
 \usepackage{import}
 \import{.}{preamble.tex}
 
-\title{How to Select a Random Point from a High-Dimensional Ball}
+\title{How to Find a Random Point in a High-Dimensional Ball}
 \author{James Zhang}
 \date{July 23, 2022}
 
@@ -15,7 +15,7 @@
 
 Hey everyone, I'm James. Last year, I watched some Summer of Math Exposition videos, and I really enjoyed them, so this year, I'm gonna make one myself.
 
-One of the videos from last year that caught my attention was \href{https://www.youtube.com/watch?v=4y_nmpv-9lI&list=PLnQX-jgAF5pTkwtUuVpqS5tuWmJ-6ZM-Z&index=6&t=3s}{``The Best Way to Find a Random Point in a Circle"} by Justin. Coincidentally, two of the courses that I took at university this year mentioned higher-dimensional volumes and geometry. So in this video, I'm going to extend Justin's results and talk about how to select a random point from a high-dimensional ball.
+One of the videos from last year that caught my attention was \href{https://www.youtube.com/watch?v=4y_nmpv-9lI&list=PLnQX-jgAF5pTkwtUuVpqS5tuWmJ-6ZM-Z&index=6&t=3s}{``The BEST Way to Find a Random Point in a Circle"} by Justin. Coincidentally, two of the courses that I took at university this year mentioned higher-dimensional volumes and geometry. So in this video, I'm going to extend Justin's results and talk about how to find a random point in a high-dimensional ball. As you will see, the results in higher dimensions are quite different from those in 2 dimensions.
 
 First of all, let me clarify what I mean by a high-dimensional ball. A ball is a generalization of a circle. A unit circle (and its interior) has equation $x^2 + y^2 = 1$. An $n$-dimensional ball has equation $x_1^2 + \ldots + x_n^2 = 1$.
 
@@ -25,13 +25,11 @@ The first method that Justin mentioned in his video was rejection sampling. That
 
 \subsection{Python Simulation}
 
-I selected 3141 points for dimensions 1 to 8 and recorded the average number of trials. Here are the results:
+I selected 3141 points for dimensions 1 to 14 and recorded the average number of trials. Here are the results:
 
-% Results from Jupyter Notebook
+% Results from Jupyter Notebook - TO BE UPDATED
 
-% [1.0, 1.9872652021649155, 6.037567653613499, 23.28430436166826, 122.61095192613817, 711.0792741165234, 5022.741483603948, 40197.09328239414]
-
-As you can see, the number of trials seems to grow exponentially with dimension. In 8 dimensions, each point on average requires way over 10,000 trials. We can imagine that in higher dimensions, it takes even more trials. How did that happen?
+As you can see, the number of trials seems to grow exponentially with dimension. In 14 dimensions, each point on average requires way over 10,000 trials. We can imagine that in higher dimensions, it takes even more trials. How did that happen?
 
 \subsection{Volume of the Unit Ball}
 
@@ -109,7 +107,7 @@ This seems like a good approach, but after some thought, we can see that the ran
 
 % Draw picture of square
 
-The distance from the origin to $(1, 1)$ is $\sqrt(2)$, which is about 1.4 times the distance from the origin to the center of an edge of the square. For $n$ dimensions, the diagonal is $\sqrt{n}$ times larger. However, the odds are even worse than that. Think of two small cones of regions, one with height 1 and the other with height $\sqrt{n}$. Each cone of region will map to the same part of the sphere, but the ratio between the volumes of the cones is $(\sqrt{n})^n$. This again grows faster than exponentially.
+The distance from the origin to $(1, 1)$ is $\sqrt{2}$, which is about 1.4 times the distance from the origin to the center of an edge of the square. For $n$ dimensions, the diagonal is $\sqrt{n}$ times larger. However, the odds are even worse than that. Think of two small cones of regions, one with height 1 and the other with height $\sqrt{n}$. Each cone will map to the same part of the sphere, but the ratio between the volumes of the cones is $(\sqrt{n})^n$. This again grows faster than exponentially.
 
 \subsubsection{Rotational Invariance and the Multivariate Normal Distribution}
 
@@ -150,14 +148,35 @@ Here's a graph of the joint density function of a 2-dimensional standard multiva
 
 % Insert python graph here
 
-Now we can normalize...
+Now, we can first generate a random vector that follows the multivariate normal distribution and normalize it, and it will give a point on the unit sphere selected uniformly at random. To see why it is uniform, choose two different small patches of the sphere, $A$ and $B$, that are congruent to each other. Suppose that $p$ is the probability that a random unit vector chosen above falls in $A$. Then we can rotate the sphere so that $A$ coincides with $B$. Thus the probability that a chosen vector falls in $B$ after the rotation is $p$. Because the multivariate normal distribution is rotationally invariant, the distribution of points after the rotation is the same as the distribution before the rotation, so the probability that a random unit vector falls in $A$ after the rotation is also $p$.
+
+There is still the problem of how to generate a Gaussian random variable from a uniform random variable. This is a good topic for a separate video, and I'm just going to rely on the python library to do this, but for those who are interested, there is an algorithm called the Box-Muller Transform which does just that. The key feature of that algorithm is that it runs in polynomial time.
 
 \subsection{Choosing the Distance}
 
+After finding a uniformly random point on the sphere, it's now time to choose the distance from the origin. Here, we use the same method as Justin used in his video. Let $Y$ be the random variable that denotes the distance from the origin. We first find the cumulative distribution function (CDF) $F_Y$, where $F_Y(r)$ is the probability that $Y \leq r$.
+
+The set of all points with distance to the origin less than or equal to $r$ form a ball of radius $r$. The probability that $Y \leq r$ is thus the ratio between the volume of a ball of radius $r$ and the unit ball. Since volumes scale appropriately according to dimension, that ratio is $\parens{\frac{r}{1}}^n$. Thus, $F_Y(r) = r^n$.
+
+Before we use Inverse Transform Sampling to generate such a random variable from a uniform random variable, notice how for a given $r \in (0, 1)$, as $n$ increases, the probability that $Y \leq r$ gets smaller and smaller. This implies that as $n$ increases, most of the volume of the ball concentrates near the surface of the ball. For instance, when $n = 500$, the probability that a random point in the unit ball is at least 0.99 units away from the origin is $99.3\%$.
+
+Now we shall use the Inverse Transform Sampling technique that Justin mentioned: If $U$ is a uniform random variable, then $Y$ has the same distribution as $F_Y^{-1}(U)$. In our case, we have $Y = \sqrt[n]{U}$.
+
 \subsection{Python Simulation}
+
+Here's my python code that generates random points in unit balls using this process. Notice that even when $n$ is big, the program still finds random points in $n$-dimensional unit balls very quickly. Unfortunately, I cannot plot higher-dimensional points in our 3D world, so here's a demonstration of this algorithm in 2 and 3 dimensions.
+
+% Manim animation for 2 and 3 dimensions
 
 \section{Reflection}
 
 \section{Acknowledgements}
+
+\begin{itemize}
+  \item Justin's video: \href{https://www.youtube.com/watch?v=4y_nmpv-9lI&list=PLnQX-jgAF5pTkwtUuVpqS5tuWmJ-6ZM-Z&index=6&t=3s}{``The BEST Way to Find a Random Point in a Circle"}
+  \item \textit{Vector Calculus, Linear Algebra, and Differential Forms: A Unified Approach} by John Hubbard and Barbara Burke Hubbard
+  \item \textit{Foundations of Data Science} by Avrim Blum, John Hopcroft, and Ravindran Kannan
+  \item \textit{Introduction to Probability} by David F. Anderson, Timo Sepp\"{a}l\"{a}inen, and Benedek Valk\'{o}
+\end{itemize}
 
 \end{document}
