@@ -72,6 +72,7 @@ class RejSampling(Scene):
             self.wait(0.5)
 
         self.wait(1)
+        # Fade out all objects
         self.play(*[FadeOut(obj) for obj in self.mobjects])
         self.wait(1)
 
@@ -116,8 +117,38 @@ class BallVolume(Scene):
     def construct(self):
         # self.add(NumberPlane())  # Debug
 
+        r_x1 = MathTex(r"r = \sqrt{1 - x_1^2}")
+        beta_n = MathTex(r"\beta_n &= \int_{-1}^1 r^{n-1} \beta_{n-1} \, dx_1")
+        beta_n_2 = MathTex(
+            r"\beta_n &= \beta_{n-1} \int_{-1}^1 (1 - x_1^2)^{\frac{n-1}{2}} \, dx_1")
+        r_x1.next_to(beta_n, UP)
+
+        self.play(FadeIn(r_x1))
+        self.play(Create(beta_n))
+        self.wait(1)
+
+        self.play(ReplacementTransform(beta_n, beta_n_2), FadeOut(r_x1))
+        self.wait(1)
+
         t_int = MathTex(r"c_n = \int_{-1}^1 (1 - t^2)^{\frac{n-1}{2}} \, dt")
-        self.play(Create(t_int))
+        t_int.save_state()
+        t_int.next_to(beta_n_2, DOWN)
+        t_int.scale(0.7)
+
+        beta_cn = MathTex(r"\beta_n = c_n \beta_{n - 1}")
+        beta_cn.save_state()
+        beta_cn.next_to(t_int, DOWN)
+        beta_cn.scale(0.7)
+
+        self.play(FadeIn(t_int))
+        self.play(FadeIn(beta_cn))
+        self.wait(1)
+
+        self.play(FadeOut(beta_n_2),
+                  FadeOut(beta_cn),
+                  Restore(t_int))
+        self.wait(1)
+
         trig_sub = MathTex(r"t = \sin(\theta)")
         trig_sub.next_to(t_int, DOWN)
         trig_sub.scale(0.7)
@@ -207,3 +238,67 @@ class BallVolume(Scene):
         result = MathTex(r"c_n = \frac{n-1}{n}c_{n-2}")
         self.play(ReplacementTransform(ibp_rearrange, result))
         self.wait(1)
+
+        base_text = Text("Base cases:")
+        c_1 = MathTex(r"c_1 = \int_{-1}^1 (1 - t^2)^0 \, dt = 2")
+        c_1.next_to(base_text, DOWN)
+        c_2 = MathTex(
+            r"c_2 = \int_{-1}^1 (1 - t^2)^{\frac{1}{2}} \, dt = \frac{\pi}{2}")
+        c_2.next_to(c_1, DOWN)
+
+        base_group = VGroup(base_text, c_1, c_2)
+        base_group.move_to(ORIGIN)
+        self.play(result.animate.to_edge(UP))
+        self.play(FadeIn(base_group))
+        self.wait(1)
+
+        result.generate_target()
+        result.target.scale(0.7)
+        result.target.to_edge(UP + RIGHT)
+
+        base_short = MathTex(r"c_1 &= 2 \\ c_2 &= \frac{\pi}{2}")
+        base_short.next_to(result.target, DOWN)
+        base_short.scale(0.7)
+
+        beta_cn.restore()
+        beta_cn.shift(2 * UP)
+        self.play(ReplacementTransform(base_group, base_short),
+                  MoveToTarget(result),
+                  FadeIn(beta_cn))
+        self.wait(1)
+
+        kappa_rel = MathTex(
+            r"\kappa_{n - 1} \stackrel{\times 2}{\longrightarrow} \kappa_n")
+        kappa_rel.next_to(beta_cn, DOWN)
+        self.play(FadeIn(kappa_rel))
+        self.wait(1)
+
+        beta_rel = MathTex(
+            r"\beta_{n - 1} \stackrel{\times c_n}{\longrightarrow} \beta_n")
+        beta_rel.next_to(kappa_rel, DOWN, buff=MED_LARGE_BUFF)
+        self.play(FadeIn(beta_rel))
+
+        bk_group = VGroup(kappa_rel, beta_rel)
+
+        ratio_rel = MathTex(
+            r"\frac{\beta_{n - 1}}{\kappa_{n-1}} \stackrel{\times \frac{c_n}{2}}{\longrightarrow} \frac{\beta_n}{\kappa_n}"
+        )
+        ratio_rel.next_to(beta_cn, DOWN, buff=MED_LARGE_BUFF)
+        self.play(FadeOut(bk_group),
+                  FadeIn(ratio_rel))
+        self.wait(1)
+
+        prob = MathTex(
+            r"P(\text{Random point in ball}) = \frac{\mathrm{Vol(Ball)}}{\mathrm{Vol(Box)}} = \frac{\beta_n}{\kappa_n}")
+        prob.next_to(ratio_rel, DOWN)
+        self.play(FadeIn(prob))
+        self.wait(1)
+
+        ex = MathTex(r"E[X] = \frac{1}{P(\text{Random point in ball)}}")
+        incr_fast = Text("increases faster than exponentially", color=RED)
+        ex_group = VGroup(ex, incr_fast)
+        ex_group.arrange(DOWN)
+        ex_group.next_to(prob, DOWN)
+        self.play(FadeIn(ex_group))
+
+        self.play(*[FadeOut(obj) for obj in self.mobjects])
