@@ -1,8 +1,5 @@
-from ast import Or
-from cmath import sin
 import math
 import random
-from turtle import dot
 import numpy as np
 from manim import *
 
@@ -383,6 +380,9 @@ class PointOnSphereWrong(Scene):
         self.wait(1)
 
         def play_normalize_vec(arr):
+            ''' Creates a vector based on arr and then normalizes it.
+                Returns the unit vector created.
+            '''
             unit_arr = arr / np.linalg.norm(arr) * r
             vec = Vector(arr)
             unit_vec = Vector(unit_arr)
@@ -565,4 +565,97 @@ class PointOnSphereRight(Scene):
         self.wait(1)
 
         self.play(FadeIn(rows_also))
+        self.wait(1)
+
+
+def random_unit_vector(n):
+    ''' Returns a unit vector in R^n chosen uniformly at random. '''
+    vec = np.empty(n)
+    for i in range(n):
+        vec[i] = np.random.normal(0., 1.)
+    length = np.linalg.norm(vec)
+    return vec / length
+
+
+def normal_sampling(n):
+    ''' Returns a random point in an n-dimensional ball. Runs in polynomial time in n. '''
+    vec = random_unit_vector(n)
+    r = (random.random()) ** (1.0 / n)
+    return vec * r
+
+
+class NormalSampSim2D(Scene):
+    def construct(self):
+
+        ns_code_raw = '''
+        def random_unit_vector(n):
+            vec = np.empty(n)
+            for i in range(n):
+                vec[i] = np.random.normal(0., 1.)
+            length = np.linalg.norm(vec)
+            return vec / length
+        
+        def normal_sampling(n):
+            vec = random_unit_vector(n)
+            r = (random.random()) ** (1.0 / n)
+            return vec * r
+        '''
+        ns_code_rendered = Code(
+            code=ns_code_raw,
+            language="Python",
+            font="Monospace",
+            background_stroke_width=0,
+            insert_line_no=False)
+        self.play(FadeIn(ns_code_rendered))
+        self.wait(2)
+        self.play(FadeOut(ns_code_rendered))
+        self.wait(1)
+
+        r = 3
+        p = 3141  # Number of points
+        points = np.empty((p, 3))
+        for i in range(p):
+            points[i] = np.append(r * normal_sampling(2), 0)
+
+        circle = Circle(radius=r)
+        self.play(Create(circle))
+
+        dots = VGroup()
+
+        for point in points:
+            dots.add(Dot(point, color=BLUE,
+                     radius=DEFAULT_DOT_RADIUS / 3))
+
+        self.play(Create(dots), lag_ratio=0.1, run_time=2)
+        self.wait(1)
+
+
+class NormalSampSim3D(ThreeDScene):
+    def construct(self):
+        self.set_camera_orientation(phi=PI / 3, theta=PI / 4)
+        self.begin_ambient_camera_rotation()
+
+        axes = ThreeDAxes(x_range=(-1, 1, 0.2),
+                          y_range=(-1, 1, 0.2),
+                          z_range=(-1, 1, 0.2))
+        self.add(axes)
+
+        r = 1
+        p = 3141  # Number of points
+        points = np.empty((p, 3))
+        for i in range(p):
+            points[i] = r * normal_sampling(3)
+
+        sphere = Sphere(radius=r)
+        sphere.set_color(GRAY)
+        sphere.set_opacity(0.2)
+        self.play(Create(sphere))
+
+        dots = VGroup()
+
+        for point in points:
+            dots.add(Dot(point, color=BLUE,
+                     radius=DEFAULT_DOT_RADIUS / 3))
+
+        self.play(Create(dots), lag_ratio=0.1, run_time=10)
         self.wait(1)
