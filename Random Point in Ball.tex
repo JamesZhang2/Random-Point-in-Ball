@@ -114,13 +114,15 @@ This seems like a good approach, but after some thought, we can see that the ran
 
 % Draw picture of square
 
-The distance from the origin to $(1, 1)$ is $\sqrt{2}$, which is about 1.4 times the distance from the origin to the center of an edge of the square. For $n$ dimensions, the diagonal is $\sqrt{n}$ times larger. However, the odds are even worse than that. Think of two small cones of regions, one with height 1 and the other with height $\sqrt{n}$. Each cone will map to the same part of the sphere, but the ratio between the volumes of the cones is $(\sqrt{n})^n$. This again grows faster than exponentially.
+The distance from the origin to the upper-right corner is $\sqrt{2}$, whereas the distance from the origin to the upper edge is 1. Consider these two cones, which are just triangles in 2D. If a random vector falls into the green cone, it will be scaled to a point on this green arc. If a random vector falls into the blue cone, it will be scaled to a point on this blue arc. The cones are drawn such that the blue and the green arcs have the same length. Then these two cones are similar, and the ratio between their areas is $\parens{\frac{\sqrt{2}}{1}}^2$.
+
+For $n$ dimensions, the diagonal distance will be $\sqrt{n}$ times larger, and the ratio between the volumes of the cones will be $\parens{\frac{\sqrt{n}}{1}}^n$. This again grows faster than exponentially, which means that the probability that a random point lands on one region of the sphere is more than exponentially bigger than the probability that a random point lands on some other region of the sphere with the same area.
 
 \subsubsection{Rotational Invariance and the Multivariate Normal Distribution}
 
 To figure out a valid way to choose a point uniformly on the sphere, we need to think outside the box. Literally. The problem with the box is that it is not rotationally invariant: If we rotate the box by a certain amount, the rotated box doesn't look the same as the original. Meanwhile, the ball and the sphere are all rotationally invariant: However we rotate them, they look the same.
 
-Every rotation in $\R^n$ can be characterized by an orthogonal matrix. An orthogonal matrix is a matrix whose columns (or rows) form an orthonormal basis. (Note: All rotations are isometries, but not all isometries are rotations.) For instance, in $\R^2$, we can express a rotation like this:
+Every rotation in $\R^n$ can be characterized by an orthogonal matrix. An orthogonal matrix is a matrix whose columns (and rows) form an orthonormal basis. (Note: All rotations are isometries, but not all isometries are rotations.) For instance, in $\R^2$, we can express a rotation like this:
 \[
   Q = \begin{bmatrix}
     \cos(\theta) & -\sin(\theta) \\
@@ -165,7 +167,7 @@ After finding a uniformly random point on the sphere, it's now time to choose th
 
 The set of all points with distance to the origin less than or equal to $r$ form a ball of radius $r$. The probability that $Y \leq r$ is thus the ratio between the volume of a ball of radius $r$ and the unit ball. Since volumes scale appropriately according to dimension, that ratio is $\parens{\frac{r}{1}}^n$. Thus, $F_Y(r) = r^n$.
 
-Before we use Inverse Transform Sampling to generate such a random variable from a uniform random variable, notice how for a given $r \in (0, 1)$, as $n$ increases, the probability that $Y \leq r$ gets smaller and smaller. This implies that as $n$ increases, most of the volume of the ball concentrates near the surface of the ball. For instance, when $n = 500$, the probability that a random point in the unit ball is at least 0.99 units away from the origin is $99.3\%$.
+Notice how for a given $r \in (0, 1)$, as $n$ increases, the probability that $Y \leq r$ gets smaller and smaller. This implies that as $n$ increases, most of the volume of the ball concentrates near the surface of the ball. For instance, when $n = 500$, the probability that a random point in the unit ball is at least 0.99 units away from the origin is $99.3\%$.
 
 Now we shall use the Inverse Transform Sampling technique that Justin mentioned: If $U$ is a uniform random variable, then $Y$ has the same distribution as $F_Y^{-1}(U)$. In our case, we have $Y = \sqrt[n]{U}$.
 

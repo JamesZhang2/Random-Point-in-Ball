@@ -1,4 +1,6 @@
+import math
 import random
+import numpy as np
 from manim import *
 
 
@@ -301,4 +303,142 @@ class BallVolume(Scene):
         ex_group.next_to(prob, DOWN)
         self.play(FadeIn(ex_group))
 
+        # Fade out everything
+        self.play(*[FadeOut(obj) for obj in self.mobjects])
+
+
+class PointOnSphereWrong(Scene):
+    def construct(self):
+        r = 3
+        square = Square(side_length=r * 2)
+        circle = Circle(radius=r)
+
+        self.play(Create(square), Create(circle))
+        self.wait(1)
+
+        def play_normalize_vec(arr):
+            unit_arr = arr / np.linalg.norm(arr) * r
+            vec = Vector(arr)
+            unit_vec = Vector(unit_arr)
+            self.play(Create(vec))
+            self.wait(1)
+            self.play(ReplacementTransform(vec, unit_vec))
+            self.wait(1)
+            return unit_vec  # So that we can fade it out later
+
+        arrs = [np.array([0.6 * r, -0.4 * r]),
+                np.array([-0.93 * r, -0.78 * r])]
+
+        unit_vecs = []
+
+        for arr in arrs:
+            unit_vecs.append(play_normalize_vec(arr))
+
+        self.play(*[FadeOut(unit_vec) for unit_vec in unit_vecs])
+
+        diag = Line(ORIGIN, [r, r, 0])
+        vert = Line(ORIGIN, [0, r, 0])
+        diag_label = MathTex(r"\sqrt{2}")
+        vert_label = MathTex(r"1")
+        diag_label.move_to(diag.get_center() + DR * MED_SMALL_BUFF)
+        vert_label.next_to(vert, buff=SMALL_BUFF)
+        diag_group = VGroup(diag, diag_label)
+        vert_group = VGroup(vert, vert_label)
+
+        self.play(Create(diag_group))
+        self.wait(1)
+        self.play(Create(vert_group))
+        self.wait(1)
+        self.play(FadeOut(diag_group), FadeOut(vert_group))
+
+        eps = 0.1
+        diag_poly = Polygon([r * (1 - 2 * eps), r, 0],
+                            [r, r * (1 - 2 * eps), 0],
+                            ORIGIN)
+        diag_poly.set_fill(GREEN)
+        diag_poly.set_opacity(0.6)
+        vert_poly = Polygon([-r * eps, r, 0], [r * eps, r, 0], ORIGIN)
+        vert_poly.set_fill(BLUE)
+        vert_poly.set_opacity(0.6)
+
+        self.play(FadeIn(diag_poly))
+        self.wait(1)
+        self.play(FadeIn(vert_poly))
+        self.wait(1)
+
+        diag_arc_start = math.atan2(1 - 2 * eps, 1)
+        diag_arc_end = math.atan2(1, 1 - 2 * eps)
+        diag_arc = Arc(arc_center=ORIGIN,
+                       radius=r,
+                       start_angle=diag_arc_start,
+                       angle=diag_arc_end - diag_arc_start)
+        diag_arc.set_color(GREEN_D)
+
+        vert_arc_start = math.atan2(1, eps)
+        vert_arc_end = math.atan2(1, -eps)
+        vert_arc = Arc(arc_center=ORIGIN,
+                       radius=r,
+                       start_angle=vert_arc_start,
+                       angle=vert_arc_end - vert_arc_start)
+        vert_arc.set_color(BLUE_D)
+
+        diag_arr = np.array([0.87 * r, (0.87 - 0.2 * eps) * r, 0])
+        play_normalize_vec(diag_arr)
+
+        self.play(Create(diag_arc))
+        self.play(Indicate(diag_arc))
+        self.wait(1)
+
+        vert_arr = np.array([-eps * 0.05 * r, 0.47 * r, 0])
+        play_normalize_vec(vert_arr)
+
+        self.play(Create(vert_arc))
+        self.play(Indicate(vert_arc))
+        self.wait(1)
+
+        graph_group = Group(*[obj for obj in self.mobjects])
+        self.play(graph_group.animate.to_edge(LEFT))
+
+        len_eq = Text("Length of green arc = Length of blue arc",
+                      t2c={"green arc": GREEN_D, "blue arc": BLUE_D})
+        prob_ratio = MathTex(
+            r"\frac{P(\text{Point falls on green arc})}{P(\text{Point falls on blue arc})}")
+        prob_eq_area = MathTex(
+            r"= \frac{\mathrm{Area}(\text{Green cone})}{\mathrm{Area}(\text{Blue cone})}")
+        prob_eq_vol = MathTex(
+            r"= \frac{\mathrm{Vol}(\text{Green cone})}{\mathrm{Vol}(\text{Blue cone})}")
+        root_2_sqr = MathTex(r"=\left( \frac{\sqrt{2}}{1} \right)^2")
+        root_n_pow = MathTex(r"=\left( \frac{\sqrt{n}}{1} \right)^n")
+        incr_fast = Text("increases faster than exponentially", color=RED)
+
+        txt_group = VGroup(len_eq, prob_ratio, prob_eq_area,
+                           root_2_sqr, incr_fast)
+        txt_group.scale(0.6)
+        txt_group.arrange(DOWN)
+        txt_group.next_to(graph_group)
+        root_n_pow.scale(0.6)
+        prob_eq_vol.scale(0.6)
+        prob_eq_vol.move_to(prob_eq_area)
+        root_n_pow.move_to(root_2_sqr)
+
+        self.play(FadeIn(len_eq))
+        self.wait(1)
+
+        self.play(FadeIn(prob_ratio))
+        self.wait(1)
+
+        self.play(FadeIn(prob_eq_area))
+        self.wait(1)
+
+        self.play(FadeIn(root_2_sqr))
+        self.wait(1)
+
+        self.play(ReplacementTransform(root_2_sqr, root_n_pow),
+                  ReplacementTransform(prob_eq_area, prob_eq_vol))
+        self.wait(1)
+
+        self.play(FadeIn(incr_fast))
+        self.wait(1)
+
+        # Fade out everything
         self.play(*[FadeOut(obj) for obj in self.mobjects])
