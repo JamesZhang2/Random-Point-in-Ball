@@ -1,5 +1,8 @@
+from ast import Or
+from cmath import sin
 import math
 import random
+from turtle import dot
 import numpy as np
 from manim import *
 
@@ -39,6 +42,9 @@ class Intro(Scene):
 
         self.play(Create(ball_def))
         self.wait(10)
+
+        # Fade out everything
+        self.play(*[FadeOut(obj) for obj in self.mobjects])
 
 
 class RejSampling(Scene):
@@ -113,6 +119,9 @@ class RejSampling(Scene):
         self.wait(2)
 
         self.play(FadeIn(trials_log))
+
+        # Fade out everything
+        self.play(*[FadeOut(obj) for obj in self.mobjects])
 
 
 class BallVolume(Scene):
@@ -301,7 +310,64 @@ class BallVolume(Scene):
         ex_group = VGroup(ex, incr_fast)
         ex_group.arrange(DOWN)
         ex_group.next_to(prob, DOWN)
-        self.play(FadeIn(ex_group))
+        self.play(FadeIn(ex))
+        self.play(GrowFromCenter(incr_fast))
+
+        # Fade out everything
+        self.play(*[FadeOut(obj) for obj in self.mobjects])
+
+
+class SphereDistIntro(Scene):
+    def construct(self):
+        r = 3
+        circle = Circle(radius=r)
+        self.play(Create(circle))
+
+        theta_0 = PI / 3
+        unit_vec = Vector([r * math.cos(theta_0), r * math.sin(theta_0), 0])
+        self.play(Create(unit_vec))
+        self.play(Rotate(unit_vec,
+                         angle=2 * PI,
+                         about_point=ORIGIN,
+                         run_time=2,
+                         rate_func=smooth))
+        self.wait(1)
+        self.play(ApplyMethod(unit_vec.put_start_and_end_on,
+                              [0, 0, 0],
+                              [0.2 * r * math.cos(theta_0),
+                               0.2 * r * math.sin(theta_0), 0],
+                              run_time=2,
+                              rate_func=there_and_back))
+
+        graph_group = VGroup(circle, unit_vec)
+        graph_group.generate_target()
+        graph_group.target.scale(0.6)
+        graph_group.target.to_edge(LEFT)
+        self.play(MoveToTarget(graph_group))
+        self.wait(1)
+
+        tasks = BulletedList("Choose a uniformly random direction",
+                             "Choose a random distance from the origin")
+        tasks.scale(0.9)
+        rand_dir = Text("Random direction = Random point on sphere")
+        rand_dir.scale(0.6)
+        sphere_def = MathTex(
+            r"S_n(r) = \{(x_1, \ldots, x_n) : x_1^2 + \ldots + x_n^2 = r^2\}")
+        txt_group = VGroup(tasks, rand_dir, sphere_def)
+        txt_group.arrange(DOWN, buff=MED_LARGE_BUFF)
+        txt_group.next_to(graph_group, RIGHT, buff=MED_LARGE_BUFF)
+
+        self.play(FadeIn(tasks[0]))
+        self.wait(1)
+
+        self.play(FadeIn(tasks[1]))
+        self.wait(1)
+
+        self.play(Indicate(tasks[0]), FadeIn(rand_dir))
+        self.wait(1)
+
+        self.play(FadeIn(sphere_def))
+        self.wait(1)
 
         # Fade out everything
         self.play(*[FadeOut(obj) for obj in self.mobjects])
@@ -437,8 +503,66 @@ class PointOnSphereWrong(Scene):
                   ReplacementTransform(prob_eq_area, prob_eq_vol))
         self.wait(1)
 
-        self.play(FadeIn(incr_fast))
+        self.play(GrowFromCenter(incr_fast))
         self.wait(1)
 
         # Fade out everything
         self.play(*[FadeOut(obj) for obj in self.mobjects])
+
+
+class RotateSquare(Scene):
+    def construct(self):
+        r = 2
+        square = Square(side_length=r * 2)
+        self.play(Create(square))
+        self.play(Rotate(square, angle=PI / 4))
+        self.wait(1)
+        self.play(Uncreate(square))
+
+
+class RotatePlane(LinearTransformationScene):
+    def __init__(self):
+        LinearTransformationScene.__init__(
+            self
+        )
+
+    def construct(self):
+        q_mat = MathTex(
+            r"Q = \begin{bmatrix} \cos(\theta) & -\sin(\theta) \\ \sin(\theta) & \cos(\theta) \end{bmatrix}")
+
+        q_mat.to_corner(UR)
+        self.add_foreground_mobject(q_mat)  # Foreground mobjects don't move
+
+        theta = PI / 3
+        matrix = [[math.cos(theta), -math.sin(theta)],
+                  [math.sin(theta), math.cos(theta)]]
+        self.apply_matrix(matrix)
+        self.wait()
+
+
+class PointOnSphereRight(Scene):
+    def construct(self):
+        q_mat = MathTex(
+            r"Q = \begin{bmatrix} \cos(\theta) & -\sin(\theta) \\ \sin(\theta) & \cos(\theta) \end{bmatrix}")
+
+        orthonormal = MathTex(
+            r"\begin{bmatrix} \cos(\theta) \\ \sin(\theta) \end{bmatrix} \text{ and } \begin{bmatrix} -\sin(\theta) \\ \cos(\theta) \end{bmatrix} \text{ are orthonormal}")
+        norm_1 = MathTex(r"\sqrt{\cos^2(\theta) + \sin^2(\theta)} = 1")
+        dot_0 = MathTex(
+            r"\begin{bmatrix} \cos(\theta) \\ \sin(\theta) \end{bmatrix} \cdot \begin{bmatrix} -\sin(\theta) \\ \cos(\theta) \end{bmatrix} = 0")
+
+        rows_also = Text(
+            "Similarly, the row vectors of Q are also orthonormal.", t2s={"Q": ITALIC})
+        rows_also.scale(0.6)
+
+        q_group = VGroup(q_mat, orthonormal, norm_1, dot_0, rows_also)
+        q_group.arrange(DOWN)
+
+        self.play(FadeIn(q_mat))
+        self.wait(1)
+
+        self.play(FadeIn(orthonormal), FadeIn(norm_1), FadeIn(dot_0))
+        self.wait(1)
+
+        self.play(FadeIn(rows_also))
+        self.wait(1)

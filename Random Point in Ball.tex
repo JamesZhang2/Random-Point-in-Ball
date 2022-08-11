@@ -98,7 +98,7 @@ Another method to select a random point from a circle that Justin mentioned was 
 
 We can try to apply this idea to higher dimensions. In three dimensions, we can try to choose $r, \theta, \vphi$ in some way such that the points represented by $(r, \theta, \vphi)$ in spherical coordinates are distributed uniformly in a three-dimensional ball. However, we can't choose $\vphi$ uniformly because when $\vphi$ is close to $\frac{\pi}{2}$, that is, we're choosing points near the equator, we expect to see way more points than when $\vphi$ is close to 0 or $\pi$ (or near the poles). There are higher-dimensional analogs of the spherical coordinates in higher dimensions, but we can imagine that as the dimensions go up, it would be increasingly difficult to keep track of the distributions of each variable.
 
-Instead, we take a similar approach: First choose a direction uniformly at random, and then choose a number $r$ between 0 and 1. The random point will be in that direction with a distance $r$ from the origin.
+Instead, we take a similar approach: First choose a direction uniformly at random, and then choose a random number between 0 and 1 to be the distance from the origin.
 
 Choosing a random direction in n-dimensional space is the same as choosing a random point on the n-dimensional unit sphere. A sphere is the boundary of a ball, and points on the unit sphere satisfy $x_1^2 + \ldots + x_n^2 = 1$.
 
@@ -120,7 +120,7 @@ For $n$ dimensions, the diagonal distance will be $\sqrt{n}$ times larger, and t
 
 \subsubsection{Rotational Invariance and the Multivariate Normal Distribution}
 
-To figure out a valid way to choose a point uniformly on the sphere, we need to think outside the box. Literally. The problem with the box is that it is not rotationally invariant: If we rotate the box by a certain amount, the rotated box doesn't look the same as the original. Meanwhile, the ball and the sphere are all rotationally invariant: However we rotate them, they look the same.
+The problem with the box is that it is not rotationally invariant: If we rotate the box by a certain amount, the rotated box doesn't look the same as the original. Meanwhile, the ball and the sphere are all rotationally invariant: However we rotate them, they look the same.
 
 Every rotation in $\R^n$ can be characterized by an orthogonal matrix. An orthogonal matrix is a matrix whose columns (and rows) form an orthonormal basis. (Note: All rotations are isometries, but not all isometries are rotations.) For instance, in $\R^2$, we can express a rotation like this:
 \[
@@ -138,7 +138,7 @@ and the dot product between the two vectors is 0. Similarly, the rows of $Q$ are
 
 % Manim rotation animation
 
-Is there any distribution that is rotationally invariant? Introducing the multivariate normal distribution. As you might know, the probability density function of a normal random variable is shaped like a bell curve. Here, we're using the standard multivariate normal distribution, denoted $\mathcal{N}(\vec{0}, I)$, which is a vector of independent random variables, where each component follows the standard normal distribution $\mathcal{N}(0, 1)$. (Here I'm using ``normal'' and ``Gaussian'' interchangeably.)
+To figure out a valid way to choose a point uniformly on the sphere, we need to think outside the box. Literally. Introducing the multivariate normal distribution. As you might know, the probability density function of a normal random variable is shaped like a bell curve. Here, we're using the standard multivariate normal distribution, denoted $\mathcal{N}(\mathbf{0}, I)$, which is a vector of independent random variables, where each component follows the standard normal distribution $\mathcal{N}(0, 1)$. (Here I'm using ``normal'' and ``Gaussian'' interchangeably.)
 
 You might also know that any linear combination of independent normal random variables is still a normal random variable. We can use this fact to show that the standard multivariate normal distribution is rotationally invariant:
 
@@ -147,15 +147,17 @@ $X = \begin{bmatrix}
     X_1 \\ \vdots \\ X_n
   \end{bmatrix}$ is a standard multivariate normal. Then each $X_i$ is a Gaussian with mean 0 and variance 1.
 
-Let $q_{m1}, \ldots, q_{mn}$ be the $m$th row of $Q$. Then the $m$th element of $QX$ is $Y_m = q_{m1} X_1 + \ldots + q_{mn} X_n$. Since $Q$ is orthogonal, $q_{m1}^2 + \ldots + q_{mn}^2 = 1$.
+Let $q_{1,1}, \ldots, q_{1,n}$ be the first row of $Q$. Then the first element of $QX$ is $Y_1 = q_{1,1} X_1 + \ldots + q_{1,n} X_n$. Since $Q$ is orthogonal, $q_{1,1}^2 + \ldots + q_{1,n}^2 = 1$.
 
-Since the $X_i$'s are independent Gaussian random variables, the linear combination is still a Gaussian random variable. Moreover, by linearity of expectation, the mean of $Y_m$ is $\mu(Y_m) = q_{m1} \mu(X_1) + \ldots + q_{mn} \mu(X_n) = 0$, and by independence, the variance of $Y_m$ is $\Var(Y_m) = q_{m1}^2 \Var(X_1) + \ldots + q_{mn}^2 \Var(X_n) = q_{m1}^2 + \ldots + q_{mn}^2 = 1$.
+Since the $X_i$'s are independent Gaussian random variables, the linear combination is still a Gaussian random variable. Moreover, by linearity of expectation, the mean of $Y_1$ is $\mu(Y_1) = q_{1,1} \mu(X_1) + \ldots + q_{1,n} \mu(X_n) = 0$, and by independence, the variance of $Y_1$ is $\Var(Y_1) = q_{1,1}^2 \Var(X_1) + \ldots + q_{1,n}^2 \Var(X_n) = q_{1,1}^2 + \ldots + q_{1,n}^2 = 1$.
 
-We have shown that $Y_m$ is a normal random variable. This is the same for each element of $QX$, so $QX$ is still a standard multivariate normal. Thus $X$ is rotationally invariant.
+We have shown that $Y_m$ is a normal random variable. This is the same for each element of $Y = QX$, so $Y$ is still a standard multivariate normal. Thus $X$ is rotationally invariant.
 
-Here's a graph of the joint density function of a 2-dimensional standard multivariate normal random variable. We can see from the density function that the distribution is indeed rotationally invariant.
+Here's a graph of the joint density function of a 2-dimensional standard multivariate normal random variable. We can see from the density function that the distribution is indeed symmetric around the origin.
 
-% Insert python graph here
+\begin{center}
+  \includegraphics[scale=0.3]{manim/project/images/Multivariate Normal PDF.png}
+\end{center}
 
 Now, we can first generate a random vector that follows the multivariate normal distribution and normalize it, and it will give a point on the unit sphere selected uniformly at random. To see why it is uniform, choose two different small patches of the sphere, $A$ and $B$, that are congruent to each other. Suppose that $p$ is the probability that a random unit vector chosen above falls in $A$. Then we can rotate the sphere so that $A$ coincides with $B$. Thus the probability that a chosen vector falls in $B$ after the rotation is $p$. Because the multivariate normal distribution is rotationally invariant, the distribution of points after the rotation is the same as the distribution before the rotation, so the probability that a random unit vector falls in $A$ after the rotation is also $p$.
 
@@ -163,13 +165,13 @@ There is still the problem of how to generate a Gaussian random variable from a 
 
 \subsection{Choosing the Distance}
 
-After finding a uniformly random point on the sphere, it's now time to choose the distance from the origin. Here, we use the same method as Justin used in his video. Let $Y$ be the random variable that denotes the distance from the origin. We first find the cumulative distribution function (CDF) $F_Y$, where $F_Y(r)$ is the probability that $Y \leq r$.
+After finding a uniformly random point on the sphere, it's now time to choose the distance from the origin. Here, we use the same method as Justin used in his video. Let $R$ be the random variable that denotes the distance from the origin. We first find the cumulative distribution function (CDF) $F_R$, where $F_R(r)$ is the probability that $R \leq r$.
 
-The set of all points with distance to the origin less than or equal to $r$ form a ball of radius $r$. The probability that $Y \leq r$ is thus the ratio between the volume of a ball of radius $r$ and the unit ball. Since volumes scale appropriately according to dimension, that ratio is $\parens{\frac{r}{1}}^n$. Thus, $F_Y(r) = r^n$.
+The set of all points with distance to the origin less than or equal to $r$ form a ball of radius $r$. The probability that $R \leq r$ is thus the ratio between the volume of a ball of radius $r$ and the unit ball. Since volumes scale appropriately according to dimension, that ratio is $\parens{\frac{r}{1}}^n$. Thus, $F_R(r) = r^n$.
 
-Notice how for a given $r \in (0, 1)$, as $n$ increases, the probability that $Y \leq r$ gets smaller and smaller. This implies that as $n$ increases, most of the volume of the ball concentrates near the surface of the ball. For instance, when $n = 500$, the probability that a random point in the unit ball is at least 0.99 units away from the origin is $99.3\%$.
+Notice how for a given $r \in (0, 1)$, as $n$ increases, the probability that $R \leq r$ gets smaller and smaller. This implies that as $n$ increases, most of the volume of the ball concentrates near the surface of the ball. For instance, when $n = 500$, the probability that a random point in the unit ball is at least 0.99 units away from the origin is $99.3\%$.
 
-Now we shall use the Inverse Transform Sampling technique that Justin mentioned: If $U$ is a uniform random variable, then $Y$ has the same distribution as $F_Y^{-1}(U)$. In our case, we have $Y = \sqrt[n]{U}$.
+Now we shall use the Inverse Transform Sampling technique that Justin mentioned: If $U$ is a uniform random variable, then $R$ has the same distribution as $F_R^{-1}(U)$. In our case, we have $R = \sqrt[n]{U}$.
 
 \subsection{Python Simulation}
 
@@ -186,6 +188,7 @@ Here's my python code that generates random points in unit balls using this proc
   \item \textit{Vector Calculus, Linear Algebra, and Differential Forms: A Unified Approach} by John Hubbard and Barbara Burke Hubbard
   \item \textit{Foundations of Data Science} by Avrim Blum, John Hopcroft, and Ravindran Kannan
   \item \textit{Introduction to Probability} by David F. Anderson, Timo Sepp\"{a}l\"{a}inen, and Benedek Valk\'{o}
+  \item \href{https://scipython.com/blog/visualizing-the-bivariate-gaussian-distribution/}{This website} helped me generate the graph of the PDF of the standard multivariate normal
 \end{itemize}
 
 \end{document}
