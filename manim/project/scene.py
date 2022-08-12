@@ -6,6 +6,7 @@ from manim import *
 
 class Intro(Scene):
     def construct(self):
+        # Greetings and Justin's video screenshot
         hi = Text("Hey everyone, I'm James.")
         justin = ImageMobject("images/Justin's Video.png")
         hi.to_edge(UP, buff=0.2)
@@ -20,6 +21,7 @@ class Intro(Scene):
         self.play(FadeOut(hi), FadeOut(justin))
         self.wait(1)
 
+        # Problem to discuss in this video
         problem = Text(
             "How to find a uniform random point\nin a high-dimensional ball?",
             t2c={"high-dimensional ball": RED})
@@ -40,17 +42,19 @@ class Intro(Scene):
         self.play(Create(ball_def))
         self.wait(10)
 
-        # Fade out everything
+        # Fade out all Mobjects
         self.play(*[FadeOut(obj) for obj in self.mobjects])
 
 
 class RejSampling(Scene):
     def construct(self):
+        # Title
         rej_samp_title = Text("Rejection Sampling")
         rej_samp_title.to_edge(UP, buff=0.2)
         self.play(Create(rej_samp_title))
-        self.wait(2)
+        self.wait(5)
 
+        # Rejection sampling animation
         r = 3
         square = Square(side_length=r * 2)
         circle = Circle(radius=r)
@@ -58,7 +62,7 @@ class RejSampling(Scene):
         self.play(Create(square), Create(circle))
         self.wait(1)
 
-        num_points = 5  # Must be greater than 1
+        num_points = 7  # Must be greater than 1
         points = [[0.39 * r, -0.57 * r, 0], [-0.73 * r, 0.82 * r, 0]]
 
         for _ in range(num_points - 2):
@@ -77,10 +81,10 @@ class RejSampling(Scene):
             self.wait(0.5)
 
         self.wait(1)
-        # Fade out all objects
         self.play(*[FadeOut(obj) for obj in self.mobjects])
         self.wait(1)
 
+        # Code
         rs_code_raw = '''
         def rejection_sampling(n):
             trials = 0
@@ -88,7 +92,7 @@ class RejSampling(Scene):
                 trials += 1
                 vec = np.empty(n)
                 for i in range(n):
-                    vec[i] = random.random()
+                    vec[i] = (random.random() - 0.5) * 2
                 if (np.dot(vec, vec) <= 1):
                     return (vec, trials)
         '''
@@ -99,8 +103,9 @@ class RejSampling(Scene):
             background_stroke_width=0,
             insert_line_no=False)
         self.play(FadeIn(rs_code_rendered))
-        self.wait(2)
+        self.wait(20)
 
+        # Results
         trials_linear = ImageMobject(
             "images/Trials vs. Dimension Linear.png")
         trials_linear.scale(0.8)
@@ -113,18 +118,17 @@ class RejSampling(Scene):
 
         self.play(FadeOut(rs_code_rendered))
         self.play(FadeIn(trials_linear))
-        self.wait(2)
+        self.wait(5)
 
         self.play(FadeIn(trials_log))
+        self.wait(5)
 
-        # Fade out everything
         self.play(*[FadeOut(obj) for obj in self.mobjects])
 
 
 class BallVolume(Scene):
     def construct(self):
-        # self.add(NumberPlane())  # Debug
-
+        # Relation between beta_n and beta_{n-2}
         r_x1 = MathTex(r"r = \sqrt{1 - x_1^2}")
         beta_n = MathTex(r"\beta_n &= \int_{-1}^1 r^{n-1} \beta_{n-1} \, dx_1")
         beta_n_2 = MathTex(
@@ -138,6 +142,7 @@ class BallVolume(Scene):
         self.play(ReplacementTransform(beta_n, beta_n_2), FadeOut(r_x1))
         self.wait(1)
 
+        # Multiplying factor c_n
         t_int = MathTex(r"c_n = \int_{-1}^1 (1 - t^2)^{\frac{n-1}{2}} \, dt")
         t_int.save_state()
         t_int.next_to(beta_n_2, DOWN)
@@ -243,6 +248,7 @@ class BallVolume(Scene):
             ibp_split, ibp_rearrange), FadeOut(trig_int_n), FadeOut(trig_int_n_2))
         self.wait(1)
 
+        # Recurrence relation between c_n and c_{n-2}
         result = MathTex(r"c_n = \frac{n-1}{n}c_{n-2}")
         self.play(ReplacementTransform(ibp_rearrange, result))
         self.wait(1)
@@ -275,6 +281,7 @@ class BallVolume(Scene):
                   FadeIn(beta_cn))
         self.wait(1)
 
+        # Ratio between beta_n and kappa_n
         kappa_rel = MathTex(
             r"\kappa_{n - 1} \stackrel{\times 2}{\longrightarrow} \kappa_n")
         kappa_rel.next_to(beta_cn, DOWN)
@@ -310,7 +317,6 @@ class BallVolume(Scene):
         self.play(FadeIn(ex))
         self.play(GrowFromCenter(incr_fast))
 
-        # Fade out everything
         self.play(*[FadeOut(obj) for obj in self.mobjects])
 
 
@@ -366,7 +372,6 @@ class SphereDistIntro(Scene):
         self.play(FadeIn(sphere_def))
         self.wait(1)
 
-        # Fade out everything
         self.play(*[FadeOut(obj) for obj in self.mobjects])
 
 
@@ -506,7 +511,6 @@ class PointOnSphereWrong(Scene):
         self.play(GrowFromCenter(incr_fast))
         self.wait(1)
 
-        # Fade out everything
         self.play(*[FadeOut(obj) for obj in self.mobjects])
 
 
@@ -527,11 +531,11 @@ class RotatePlane(LinearTransformationScene):
         )
 
     def construct(self):
-        q_mat = MathTex(
+        q_mat_2d = MathTex(
             r"Q = \begin{bmatrix} \cos(\theta) & -\sin(\theta) \\ \sin(\theta) & \cos(\theta) \end{bmatrix}")
 
-        q_mat.to_corner(UR)
-        self.add_foreground_mobject(q_mat)  # Foreground mobjects don't move
+        q_mat_2d.to_corner(UR)
+        self.add_foreground_mobject(q_mat_2d)  # Foreground mobjects don't move
 
         theta = PI / 3
         matrix = [[math.cos(theta), -math.sin(theta)],
@@ -542,7 +546,8 @@ class RotatePlane(LinearTransformationScene):
 
 class PointOnSphereRight(Scene):
     def construct(self):
-        q_mat = MathTex(
+        # Rotation and orthogonal matrices
+        q_mat_2d = MathTex(
             r"Q = \begin{bmatrix} \cos(\theta) & -\sin(\theta) \\ \sin(\theta) & \cos(\theta) \end{bmatrix}")
 
         orthonormal = MathTex(
@@ -555,16 +560,51 @@ class PointOnSphereRight(Scene):
             "Similarly, the row vectors of Q are also orthonormal.", t2s={"Q": ITALIC})
         rows_also.scale(0.6)
 
-        q_group = VGroup(q_mat, orthonormal, norm_1, dot_0, rows_also)
+        q_group = VGroup(q_mat_2d, orthonormal, norm_1, dot_0, rows_also)
         q_group.arrange(DOWN)
 
-        self.play(FadeIn(q_mat))
+        self.play(FadeIn(q_mat_2d))
         self.wait(1)
 
         self.play(FadeIn(orthonormal), FadeIn(norm_1), FadeIn(dot_0))
         self.wait(1)
 
         self.play(FadeIn(rows_also))
+        self.wait(1)
+
+        self.play(*[FadeOut(obj) for obj in self.mobjects])
+
+        # Graph of the PDF of the normal distribution
+        axes = Axes(x_range=(-4, 4, 1), y_range=(0, 0.5, 0.1),
+                    axis_config={"include_numbers": True})
+        self.play(Create(axes))
+        self.wait(1)
+
+        bell_curve = axes.plot(
+            lambda x: math.exp(-x ** 2 / 2) / math.sqrt(2 * PI), x_range=(-4, 4, 0.05))
+        bell_curve.set_color(YELLOW)
+        self.play(Create(bell_curve))
+        self.wait(1)
+
+        self.play(*[FadeOut(obj) for obj in self.mobjects])
+
+        # Proof that the standard multivariate Gaussian is rotationally invariant
+        q_mat = MathTex(
+            r"Q = \begin{bmatrix} q_{1, 1} & \ldots & q_{1, n} \\ \vdots & \ddots & \vdots \\ q_{n, 1} & \ldots & q_{n, n} \end{bmatrix}")
+        x_vec = MathTex(
+            r"X = \begin{bmatrix} X_1 \\ \vdots \\ X_n \end{bmatrix}, X_i \sim \mathcal{N}(0, 1)")
+        y_qx = MathTex(
+            r"Y = QX = \begin{bmatrix} Y_1 \\ \vdots \\ Y_n \end{bmatrix}")
+        y1 = MathTex(r"Y_1 = q_{1, 1} X_1 + \ldots + q_{1, n} X_n")
+        q_sq = MathTex(r"q_{1, 1}^2 + \ldots + q_{1, n}^2 = 1")
+        mu_y1 = MathTex(
+            r"\mu(Y_1) = q_{1,1} \mu(X_1) + \ldots + q_{1,n} \mu(X_n) = 0")
+        var_y1 = MathTex(
+            r"\mathrm{Var}(Y_1) = q_{1,1}^2 \mathrm{Var}(X_1) + \ldots + q_{1,n}^2 \mathrm{Var}(X_n) = q_{1,1}^2 + \ldots + q_{1,n}^2 = 1")
+        y1_normal = MathTex(r"Y_1 \sim \mathcal{N}(0, 1)")
+        y_normal = Text("Therefore, Y = QX is still a standard multivariate normal",
+                        t2s={"Y = QX": ITALIC})
+        self.play(FadeIn(rot_inv_group))
         self.wait(1)
 
 
@@ -672,6 +712,7 @@ class References(Scene):
                             r"This website helped me generate the graph of the PDF of the standard multivariate normal: https://scipython.com/blog/visualizing-the-bivariate-gaussian-distribution/",
                             r"Manim, numpy, and matplotlib documentations")
         refs.scale_to_fit_width(12)
-        refs.next_to(ref_txt, DOWN)
+        refs.next_to(ref_txt, DOWN, buff=MED_LARGE_BUFF)
         self.play(Write(refs, run_time=5))
-        self.wait(5)
+        self.wait(3)
+        self.play(*[FadeOut(obj) for obj in self.mobjects])

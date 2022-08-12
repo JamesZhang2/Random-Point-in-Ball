@@ -1,6 +1,9 @@
 .ipynb_checkpoints/
 *.pdf
 *.gz
-manim/
+manim/**/*
+!manim/project/
+!manim/project/images/
+!manim/project/images/*
 !manim/project/scene.py
 temp/

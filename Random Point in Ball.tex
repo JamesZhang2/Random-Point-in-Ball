@@ -1,6 +1,7 @@
 \documentclass{article}
 \usepackage[utf8]{inputenc}
 \usepackage{import}
+\usepackage{verbatim}
 \import{.}{preamble.tex}
 
 \title{How to Find a Random Point in a High-Dimensional Ball}
@@ -21,17 +22,29 @@ First of all, let me clarify what I mean by a high-dimensional ball. A ball is a
 
 \section{Rejection Sampling}
 
-The first method that Justin mentioned in his video was rejection sampling. That generalizes easily to $n$ dimensions, so I'm going to implement it. The idea of rejection sampling is that we select a random point from a box, where each coordinate is selected uniformly at random between $-1$ and 1. If the point selected happened to be in the unit ball, we're done. If not, we reject that point and select another one. Let's see how this goes:
+The first method that Justin mentioned in his video was rejection sampling. The idea of rejection sampling is that we select a random point from a box, where each coordinate is selected uniformly at random between $-1$ and 1. If the point selected happened to be in the unit ball, we're done. If not, we reject that point and select another one. This generalizes easily to $n$ dimensions, so I'm going to implement it. Here's the code:
+
+\begin{verbatim}
+def rejection_sampling(n):
+    trials = 0
+    while True:
+        trials += 1
+        vec = np.empty(n)
+        for i in range(n):
+            vec[i] = (random.random() - 0.5) * 2
+        if (np.dot(vec, vec) <= 1):
+            return (vec, trials)
+\end{verbatim}
+
+The code first enters an infinite loop so that we can repeat the selection process until we get a valid point. For each trial, we generate an array with $n$ entries and initialize each entry with a uniform random number between $-1$ and 1. Since the dot product of the vector with itself is the square of its length, we can use the dot function of numpy to check whether the point is in the ball. If it is in the ball, we return the point. Notice that we also track the number of trials and we will return it as well.
 
 \subsection{Python Simulation}
 
 I selected 3141 points for dimensions 1 to 14 and recorded the average number of trials. Here are the results:
 
-% Results from Jupyter Notebook: [1.0, 1.2846227316141356, 1.947787328876154, 3.183381088825215, 6.113976440624005, 12.435848455905763, 27.235275390003185, 62.4157911493155, 155.26774912448266, 404.79337790512574, 1089.8993950971028, 3094.251512257243, 9119.629417383, 28550.63228271251]
-
 \begin{center}
-  \includegraphics[scale=0.3]{manim/project/images/Trials vs. Dimension Linear.png}
-  \includegraphics[scale=0.3]{manim/project/images/Trials vs. Dimension Log.png}
+    \includegraphics[scale=0.3]{manim/project/images/Trials vs. Dimension Linear.png}
+    \includegraphics[scale=0.3]{manim/project/images/Trials vs. Dimension Log.png}
 \end{center}
 
 As you can see, as the dimension increases, the number of trials increases very rapidly. Even when we switch to log scale for the number of trials, the graph still appears to be concave up. This indicates that the number of trials may grow faster than exponentially with dimension. In 14 dimensions, each point on average requires way over 10,000 trials. We can imagine that in higher dimensions, it takes even more trials. How did that happen?
@@ -48,40 +61,40 @@ We will use integration and Fubini's Theorem to find out $\beta_n$. We cut the b
 
 In general, the radius of the base is $r = \sqrt{1 - x_1^2}$ by the Pythagorean Theorem. Since volume scales appropriately according to dimension, the $(n-1)$-dimensional volume of the base is $r^{n-1} \beta_{n-1}$, where $\beta_{n-1}$ is the volume of the $(n-1)$-dimensional unit ball. Thus,
 \[
-  \beta_n = \int_{-1}^1 r^{n-1} \beta_{n-1} \, dx_1 = \beta_{n-1} \int_{-1}^1 (1 - x_1^2)^{\frac{n-1}{2}} \, dx_1.
+    \beta_n = \int_{-1}^1 r^{n-1} \beta_{n-1} \, dx_1 = \beta_{n-1} \int_{-1}^1 (1 - x_1^2)^{\frac{n-1}{2}} \, dx_1.
 \]
 
 We pulled out $\beta_{n-1}$ from the integral because it is just a constant. It remains to figure out the integral
 \[
-  c_n = \int_{-1}^1 (1 - t^2)^{\frac{n-1}{2}} \, dt
+    c_n = \int_{-1}^1 (1 - t^2)^{\frac{n-1}{2}} \, dt
 \]
 because then we have the recurrence relation $\beta_n = c_n \beta_{n - 1}$.
 
 Trig substitution with $t = \sin(\theta)$ gives
 \begin{align*}
-  c_n     & = \int_{-\frac{\pi}{2}}^{\frac{\pi}{2}} \cos^{n}(\theta) \, d\theta   \\
-  c_{n-2} & = \int_{-\frac{\pi}{2}}^{\frac{\pi}{2}} \cos^{n-2}(\theta) \, d\theta
+    c_n     & = \int_{-\frac{\pi}{2}}^{\frac{\pi}{2}} \cos^{n}(\theta) \, d\theta   \\
+    c_{n-2} & = \int_{-\frac{\pi}{2}}^{\frac{\pi}{2}} \cos^{n-2}(\theta) \, d\theta
 \end{align*}
 
 Integration by parts for $c_n$, with $u = \cos^{n-1}(\theta)$ and $dv = \cos(\theta) \, d\theta$ gives
 
 \[
-  c_n = \cos^{n-1}(\theta) \sin(\theta) \bigg|_{-\frac{\pi}{2}}^{\frac{\pi}{2}} + \int_{-\frac{\pi}{2}}^{\frac{\pi}{2}} \sin^2(\theta) (n-1) \cos^{n-2}(\theta) \, d\theta
+    c_n = \cos^{n-1}(\theta) \sin(\theta) \bigg|_{-\frac{\pi}{2}}^{\frac{\pi}{2}} + \int_{-\frac{\pi}{2}}^{\frac{\pi}{2}} \sin^2(\theta) (n-1) \cos^{n-2}(\theta) \, d\theta
 \]
 
 The first term on the right hand side is 0, so
 \[
-  c_n = (n-1) \int_{-\frac{\pi}{2}}^{\frac{\pi}{2}} \sin^2(\theta) \cos^{n-2}(\theta) \, d\theta
+    c_n = (n-1) \int_{-\frac{\pi}{2}}^{\frac{\pi}{2}} \sin^2(\theta) \cos^{n-2}(\theta) \, d\theta
 \]
 
 Recall that $\sin^2(\theta) = 1 - \cos^2(\theta)$, so
 \[
-  c_n = (n-1) \bracks{\int_{-\frac{\pi}{2}}^{\frac{\pi}{2}} \cos^{n-2}(\theta) \, d\theta - \int_{-\frac{\pi}{2}}^{\frac{\pi}{2}} \cos^n(\theta) \, d\theta} = (n-1) c_{n-2} - (n-1) c_n
+    c_n = (n-1) \bracks{\int_{-\frac{\pi}{2}}^{\frac{\pi}{2}} \cos^{n-2}(\theta) \, d\theta - \int_{-\frac{\pi}{2}}^{\frac{\pi}{2}} \cos^n(\theta) \, d\theta} = (n-1) c_{n-2} - (n-1) c_n
 \]
 
 Rearranging, we get
 \[
-  c_n = \frac{n-1}{n}c_{n-2}.
+    c_n = \frac{n-1}{n}c_{n-2}.
 \]
 
 The base cases are $c_1 = \int_{-1}^1 (1 - t^2)^0 \, dt = 2$ (by simple integration) and $c_2 = \int_{-1}^1 (1 - t^2)^{\frac{1}{2}} \, dt = \frac{\pi}{2}$ (area of a semicircle). From geometry, we have $\beta_1 = 2$, $\beta_2 = \pi$, $\beta_3 = \frac{4}{3}\pi$.
@@ -124,15 +137,15 @@ The problem with the box is that it is not rotationally invariant: If we rotate 
 
 Every rotation in $\R^n$ can be characterized by an orthogonal matrix. An orthogonal matrix is a matrix whose columns (and rows) form an orthonormal basis. (Note: All rotations are isometries, but not all isometries are rotations.) For instance, in $\R^2$, we can express a rotation like this:
 \[
-  Q = \begin{bmatrix}
-    \cos(\theta) & -\sin(\theta) \\
-    \sin(\theta) & \cos(\theta)
-  \end{bmatrix}
+    Q = \begin{bmatrix}
+        \cos(\theta) & -\sin(\theta) \\
+        \sin(\theta) & \cos(\theta)
+    \end{bmatrix}
 \]
 
 The columns $\xymatrix{\cos(\theta)}{\sin(\theta)}$ and $\xymatrix{-\sin(\theta)}{\cos(\theta)}$ are orthonormal because the length of both vectors are
 \[
-  \sqrt{\cos^2(\theta) + \sin^2(\theta)} = 1
+    \sqrt{\cos^2(\theta) + \sin^2(\theta)} = 1
 \]
 and the dot product between the two vectors is 0. Similarly, the rows of $Q$ are also orthonormal.
 
@@ -144,8 +157,8 @@ You might also know that any linear combination of independent normal random var
 
 Suppose $Q$ is the orthogonal matrix representing an arbitrary rotation in $\R^n$, and
 $X = \begin{bmatrix}
-    X_1 \\ \vdots \\ X_n
-  \end{bmatrix}$ is a standard multivariate normal. Then each $X_i$ is a Gaussian with mean 0 and variance 1.
+        X_1 \\ \vdots \\ X_n
+    \end{bmatrix}$ is a standard multivariate normal. Then each $X_i$ is a Gaussian with mean 0 and variance 1.
 
 Let $q_{1,1}, \ldots, q_{1,n}$ be the first row of $Q$. Then the first element of $QX$ is $Y_1 = q_{1,1} X_1 + \ldots + q_{1,n} X_n$. Since $Q$ is orthogonal, $q_{1,1}^2 + \ldots + q_{1,n}^2 = 1$.
 
@@ -156,7 +169,7 @@ We have shown that $Y_m$ is a normal random variable. This is the same for each 
 Here's a graph of the joint density function of a 2-dimensional standard multivariate normal random variable. We can see from the density function that the distribution is indeed symmetric around the origin.
 
 \begin{center}
-  \includegraphics[scale=0.3]{manim/project/images/Multivariate Normal PDF.png}
+    \includegraphics[scale=0.3]{manim/project/images/Multivariate Normal PDF.png}
 \end{center}
 
 Now, we can first generate a random vector that follows the multivariate normal distribution and normalize it, and it will give a point on the unit sphere selected uniformly at random. To see why it is uniform, choose two different small patches of the sphere, $A$ and $B$, that are congruent to each other. Suppose that $p$ is the probability that a random unit vector chosen above falls in $A$. Then we can rotate the sphere so that $A$ coincides with $B$. Thus the probability that a chosen vector falls in $B$ after the rotation is $p$. Because the multivariate normal distribution is rotationally invariant, the distribution of points after the rotation is the same as the distribution before the rotation, so the probability that a random unit vector falls in $A$ after the rotation is also $p$.
@@ -175,7 +188,23 @@ Now we shall use the Inverse Transform Sampling technique that Justin mentioned:
 
 \subsection{Python Simulation}
 
-Here's my python code that generates random points in unit balls using this process. Notice that even when $n$ is big, the program still finds random points in $n$-dimensional unit balls very quickly. Unfortunately, I cannot plot higher-dimensional points in our 3D world, so here's a demonstration of this algorithm in 2 and 3 dimensions.
+Here's my python code that generates random points in unit balls using this process.
+
+\begin{verbatim}
+    def random_unit_vector(n):
+        vec = np.empty(n)
+        for i in range(n):
+            vec[i] = np.random.normal(0., 1.)
+        length = np.linalg.norm(vec)
+        return vec / length
+    
+    def normal_sampling(n):
+        vec = random_unit_vector(n)
+        r = (random.random()) ** (1.0 / n)
+        return vec * r
+\end{verbatim}
+
+Even when $n$ is big, the program still finds random points in an $n$-dimensional unit ball very quickly, much more quickly than rejection sampling. Unfortunately, I cannot plot higher-dimensional points in our 3D world, so here's a demonstration of this algorithm in 2 and 3 dimensions.
 
 % Manim animation for 2 and 3 dimensions
 
@@ -196,12 +225,12 @@ I hope this was a pleasant journey, and I hope to see you again in next year's S
 \section{References}
 
 \begin{itemize}
-  \item Justin's video: \href{https://www.youtube.com/watch?v=4y_nmpv-9lI&list=PLnQX-jgAF5pTkwtUuVpqS5tuWmJ-6ZM-Z&index=6&t=3s}{``The BEST Way to Find a Random Point in a Circle"}
-  \item \textit{Vector Calculus, Linear Algebra, and Differential Forms: A Unified Approach} by John Hubbard and Barbara Burke Hubbard
-  \item \textit{Foundations of Data Science} by Avrim Blum, John Hopcroft, and Ravindran Kannan
-  \item \textit{Introduction to Probability} by David F. Anderson, Timo Sepp\"{a}l\"{a}inen, and Benedek Valk\'{o}
-  \item \href{https://scipython.com/blog/visualizing-the-bivariate-gaussian-distribution/}{This website} helped me generate the graph of the PDF of the standard multivariate normal
-  \item Manim, numpy, and matplotlib documentations
+    \item Justin's video: \href{https://www.youtube.com/watch?v=4y_nmpv-9lI&list=PLnQX-jgAF5pTkwtUuVpqS5tuWmJ-6ZM-Z&index=6&t=3s}{``The BEST Way to Find a Random Point in a Circle"}
+    \item \textit{Vector Calculus, Linear Algebra, and Differential Forms: A Unified Approach} by John Hubbard and Barbara Burke Hubbard
+    \item \textit{Foundations of Data Science} by Avrim Blum, John Hopcroft, and Ravindran Kannan
+    \item \textit{Introduction to Probability} by David F. Anderson, Timo Sepp\"{a}l\"{a}inen, and Benedek Valk\'{o}
+    \item \href{https://scipython.com/blog/visualizing-the-bivariate-gaussian-distribution/}{This website} helped me generate the graph of the PDF of the standard multivariate normal
+    \item Manim, numpy, and matplotlib documentations
 \end{itemize}
 
 \end{document}
