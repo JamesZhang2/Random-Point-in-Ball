@@ -62,7 +62,8 @@ class RejSampling(Scene):
         self.play(Create(square), Create(circle))
         self.wait(1)
 
-        num_points = 7  # Must be greater than 1
+        num_points = 10  # Must be greater than 1
+        assert num_points > 1
         points = [[0.39 * r, -0.57 * r, 0], [-0.73 * r, 0.82 * r, 0]]
 
         for _ in range(num_points - 2):
@@ -103,7 +104,7 @@ class RejSampling(Scene):
             background_stroke_width=0,
             insert_line_no=False)
         self.play(FadeIn(rs_code_rendered))
-        self.wait(20)
+        self.wait(35)
 
         # Results
         trials_linear = ImageMobject(
@@ -118,12 +119,71 @@ class RejSampling(Scene):
 
         self.play(FadeOut(rs_code_rendered))
         self.play(FadeIn(trials_linear))
-        self.wait(5)
+        self.wait(20)
 
         self.play(FadeIn(trials_log))
-        self.wait(5)
+        self.wait(20)
 
         self.play(*[FadeOut(obj) for obj in self.mobjects])
+
+
+class BallIntegral(ThreeDScene):
+    def construct(self):
+        axes = ThreeDAxes(x_range=(-3.6, 3.6, 0.6),
+                          y_range=(-3.6, 3.6, 0.6),
+                          z_range=(-2.4, 2.4, 0.6),
+                          x_length=12,
+                          y_length=12,
+                          z_length=8)
+        self.set_camera_orientation(
+            phi=80 * DEGREES, theta=-80 * DEGREES, distance=5)
+        self.add(axes)
+
+        r = 3
+
+        sphere = Surface(lambda u, v: np.array([
+            r * np.sin(u) * np.cos(v),
+            r * np.sin(u) * np.sin(v),
+            r * np.cos(u)
+        ]), u_range=(0, PI), v_range=(0, 2 * PI))
+        sphere.set_opacity(0.7)
+
+        # self.add(sphere)
+
+        def circle_fun(x):
+            ''' Generates the parametric function of a circle with the given
+                x coordinate on the sphere with radius r.
+            '''
+            return ParametricFunction(lambda t: np.array([
+                x,
+                np.sqrt(r ** 2 - x ** 2) * np.cos(t),
+                np.sqrt(r ** 2 - x ** 2) * np.sin(t)
+            ]), t_range=(0, 2 * PI))
+
+        def thin_strip(x, dx):
+            ''' Generates a thin strip surface between the circle at x and
+                the circle at x + dx.
+            '''
+            return Surface(lambda u, v: np.array([
+                x + u * dx,
+                np.sqrt(r ** 2 - (x + u * dx) ** 2) * np.cos(v),
+                np.sqrt(r ** 2 - (x + u * dx) ** 2) * np.sin(v)
+            ]), u_range=(0, 1), v_range=(0, 2 * PI))
+
+        x_0 = r * 0.4
+        dx = r * 0.1
+        x_1 = x_0 + dx
+
+        x_0_circ = circle_fun(x_0)
+        x_1_circ = circle_fun(x_1)
+        x_0_circ.set_color(RED)
+        x_1_circ.set_color(GREEN)
+        self.add(x_0_circ)
+        self.add(x_1_circ)
+
+        strip = thin_strip(x_0, dx)
+        strip.set_color(RED)
+        self.add(strip)
 
 
 class BallVolume(Scene):
@@ -137,10 +197,10 @@ class BallVolume(Scene):
 
         self.play(FadeIn(r_x1))
         self.play(Create(beta_n))
-        self.wait(1)
+        self.wait(3)
 
         self.play(ReplacementTransform(beta_n, beta_n_2), FadeOut(r_x1))
-        self.wait(1)
+        self.wait(3)
 
         # Multiplying factor c_n
         t_int = MathTex(r"c_n = \int_{-1}^1 (1 - t^2)^{\frac{n-1}{2}} \, dt")
@@ -155,12 +215,12 @@ class BallVolume(Scene):
 
         self.play(FadeIn(t_int))
         self.play(FadeIn(beta_cn))
-        self.wait(1)
+        self.wait(3)
 
         self.play(FadeOut(beta_n_2),
                   FadeOut(beta_cn),
                   Restore(t_int))
-        self.wait(1)
+        self.wait(3)
 
         trig_sub = MathTex(r"t = \sin(\theta)")
         trig_sub.next_to(t_int, DOWN)
@@ -170,7 +230,7 @@ class BallVolume(Scene):
         dt.scale(0.7)
         self.play(FadeIn(trig_sub))
         self.play(FadeIn(dt))
-        self.wait(1)
+        self.wait(3)
 
         trig_int_n = MathTex(
             r"c_n &= \int_{-\frac{\pi}{2}}^{\frac{\pi}{2}} \cos^{n}(\theta) \, d\theta")
@@ -183,7 +243,7 @@ class BallVolume(Scene):
         self.play(trig_int_n.animate.shift(UP))
         trig_int_n_2.next_to(trig_int_n, DOWN)
         self.play(Create(trig_int_n_2))
-        self.wait(1)
+        self.wait(3)
         self.play(FadeOut(trig_int_n_2))
         self.play(trig_int_n.animate.shift(DOWN))
 
@@ -198,7 +258,7 @@ class BallVolume(Scene):
         du_v.next_to(u_dv, 2 * RIGHT)
         self.play(FadeIn(u_dv))
         self.play(FadeIn(du_v))
-        self.wait(1)
+        self.wait(3)
 
         ibp = MathTex(
             r"c_n = \cos^{n-1}(\theta) \sin(\theta) \bigg|_{-\frac{\pi}{2}}^{\frac{\pi}{2}} + \int_{-\frac{\pi}{2}}^{\frac{\pi}{2}} \sin^2(\theta) (n-1) \cos^{n-2}(\theta) \, d\theta")
@@ -206,7 +266,7 @@ class BallVolume(Scene):
         ibp_text.next_to(ibp, UP)
         self.play(FadeOut(u_dv), FadeOut(du_v),
                   ReplacementTransform(trig_int_n, ibp), FadeIn(ibp_text))
-        self.wait(1)
+        self.wait(3)
 
         cos_is_zero = MathTex(
             r"\cos \left(-\frac{\pi}{2} \right) = \cos{\frac{\pi}{2}} = 0")
@@ -214,25 +274,25 @@ class BallVolume(Scene):
         cos_is_zero.scale(0.7)
         self.play(FadeOut(ibp_text))
         self.play(FadeIn(cos_is_zero))
-        self.wait(1)
+        self.wait(3)
 
         ibp_one_term = MathTex(
             r"c_n = (n-1) \int_{-\frac{\pi}{2}}^{\frac{\pi}{2}} \sin^2(\theta) \cos^{n-2}(\theta) \, d\theta")
         self.play(ReplacementTransform(
             ibp, ibp_one_term), FadeOut(cos_is_zero))
-        self.wait(1)
+        self.wait(3)
 
         sin_cos_id = MathTex(r"\sin^2(\theta) = 1 - \cos^2(\theta)")
         sin_cos_id.next_to(ibp_one_term, DOWN)
         sin_cos_id.scale(0.7)
         self.play(FadeIn(sin_cos_id))
-        self.wait(1)
+        self.wait(3)
 
         ibp_split = MathTex(
             r"c_n = (n-1) \left[\int_{-\frac{\pi}{2}}^{\frac{\pi}{2}} \cos^{n-2}(\theta) \, d\theta - \int_{-\frac{\pi}{2}}^{\frac{\pi}{2}} \cos^n(\theta) \, d\theta\right]")
         self.play(ReplacementTransform(
             ibp_one_term, ibp_split), FadeOut(sin_cos_id))
-        self.wait(1)
+        self.wait(3)
 
         self.play(ibp_split.animate.shift(UP))
         trig_int_n = MathTex(
@@ -241,17 +301,17 @@ class BallVolume(Scene):
         trig_int_n_2.next_to(trig_int_n, DOWN)
         self.play(FadeIn(trig_int_n))
         self.play(FadeIn(trig_int_n_2))
-        self.wait(1)
+        self.wait(3)
 
         ibp_rearrange = MathTex(r"c_n = (n-1) c_{n-2} - (n-1) c_n")
         self.play(ReplacementTransform(
             ibp_split, ibp_rearrange), FadeOut(trig_int_n), FadeOut(trig_int_n_2))
-        self.wait(1)
+        self.wait(3)
 
         # Recurrence relation between c_n and c_{n-2}
         result = MathTex(r"c_n = \frac{n-1}{n}c_{n-2}")
         self.play(ReplacementTransform(ibp_rearrange, result))
-        self.wait(1)
+        self.wait(3)
 
         base_text = Text("Base cases:")
         c_1 = MathTex(r"c_1 = \int_{-1}^1 (1 - t^2)^0 \, dt = 2")
@@ -264,7 +324,7 @@ class BallVolume(Scene):
         base_group.move_to(ORIGIN)
         self.play(result.animate.to_edge(UP))
         self.play(FadeIn(base_group))
-        self.wait(1)
+        self.wait(3)
 
         result.generate_target()
         result.target.scale(0.7)
@@ -279,14 +339,14 @@ class BallVolume(Scene):
         self.play(ReplacementTransform(base_group, base_short),
                   MoveToTarget(result),
                   FadeIn(beta_cn))
-        self.wait(1)
+        self.wait(3)
 
         # Ratio between beta_n and kappa_n
         kappa_rel = MathTex(
             r"\kappa_{n - 1} \stackrel{\times 2}{\longrightarrow} \kappa_n")
         kappa_rel.next_to(beta_cn, DOWN)
         self.play(FadeIn(kappa_rel))
-        self.wait(1)
+        self.wait(3)
 
         beta_rel = MathTex(
             r"\beta_{n - 1} \stackrel{\times c_n}{\longrightarrow} \beta_n")
@@ -301,13 +361,13 @@ class BallVolume(Scene):
         ratio_rel.next_to(beta_cn, DOWN, buff=MED_LARGE_BUFF)
         self.play(FadeOut(bk_group),
                   FadeIn(ratio_rel))
-        self.wait(1)
+        self.wait(3)
 
         prob = MathTex(
             r"P(\text{Random point in ball}) = \frac{\mathrm{Vol(Ball)}}{\mathrm{Vol(Box)}} = \frac{\beta_n}{\kappa_n}")
         prob.next_to(ratio_rel, DOWN)
         self.play(FadeIn(prob))
-        self.wait(1)
+        self.wait(3)
 
         ex = MathTex(r"E[X] = \frac{1}{P(\text{Random point in ball)}}")
         incr_fast = Text("increases faster than exponentially", color=RED)
@@ -320,6 +380,53 @@ class BallVolume(Scene):
         self.play(*[FadeOut(obj) for obj in self.mobjects])
 
 
+class SphericalCoord(ThreeDScene):
+    def construct(self):
+        axes = ThreeDAxes(x_range=(-3.6, 3.6, 0.6),
+                          y_range=(-3.6, 3.6, 0.6),
+                          z_range=(-2.4, 2.4, 0.6),
+                          x_length=12,
+                          y_length=12,
+                          z_length=8)
+        self.set_camera_orientation(
+            phi=70 * DEGREES, theta=60 * DEGREES, distance=5)
+        self.add(axes)
+
+        r = 3
+
+        sphere = Surface(lambda u, v: np.array([
+            r * np.sin(u) * np.cos(v),
+            r * np.sin(u) * np.sin(v),
+            r * np.cos(u)
+        ]), u_range=(0, PI), v_range=(0, 2 * PI))
+        sphere.set_opacity(0.7)
+
+        def circle_fun(phi):
+            ''' Generates the parametric function of a circle with the given
+                phi coordinate on the sphere with radius r. '''
+            return ParametricFunction(lambda t: np.array([
+                r * np.sin(phi) * np.cos(t),
+                r * np.sin(phi) * np.sin(t),
+                r * np.cos(phi)
+            ]), t_range=(0, 2 * PI))
+
+        phi_top = 20 * DEGREES
+        phi_eqt = 90 * DEGREES  # Equator
+        top_circle = circle_fun(phi_top)
+        top_circle.set_color(GREEN)
+        equator = circle_fun(phi_eqt)
+        equator.set_color(RED)
+
+        self.play(Create(sphere))
+        self.wait(2)
+
+        self.play(Create(top_circle))
+        self.wait(2)
+
+        self.play(Create(equator))
+        self.wait(2)
+
+
 class SphereDistIntro(Scene):
     def construct(self):
         r = 3
@@ -327,7 +434,7 @@ class SphereDistIntro(Scene):
         self.play(Create(circle))
 
         theta_0 = PI / 3
-        unit_vec = Vector([r * math.cos(theta_0), r * math.sin(theta_0), 0])
+        unit_vec = Vector([r * np.cos(theta_0), r * np.sin(theta_0), 0])
         self.play(Create(unit_vec))
         self.play(Rotate(unit_vec,
                          angle=2 * PI,
@@ -337,8 +444,8 @@ class SphereDistIntro(Scene):
         self.wait(1)
         self.play(ApplyMethod(unit_vec.put_start_and_end_on,
                               [0, 0, 0],
-                              [0.2 * r * math.cos(theta_0),
-                               0.2 * r * math.sin(theta_0), 0],
+                              [0.2 * r * np.cos(theta_0),
+                               0.2 * r * np.sin(theta_0), 0],
                               run_time=2,
                               rate_func=there_and_back))
 
@@ -538,8 +645,8 @@ class RotatePlane(LinearTransformationScene):
         self.add_foreground_mobject(q_mat_2d)  # Foreground mobjects don't move
 
         theta = PI / 3
-        matrix = [[math.cos(theta), -math.sin(theta)],
-                  [math.sin(theta), math.cos(theta)]]
+        matrix = [[np.cos(theta), -np.sin(theta)],
+                  [np.sin(theta), np.cos(theta)]]
         self.apply_matrix(matrix)
         self.wait()
 
@@ -604,7 +711,6 @@ class PointOnSphereRight(Scene):
         y1_normal = MathTex(r"Y_1 \sim \mathcal{N}(0, 1)")
         y_normal = Text("Therefore, Y = QX is still a standard multivariate normal",
                         t2s={"Y = QX": ITALIC})
-        self.play(FadeIn(rot_inv_group))
         self.wait(1)
 
 

@@ -36,7 +36,7 @@ def rejection_sampling(n):
             return (vec, trials)
 \end{verbatim}
 
-The code first enters an infinite loop so that we can repeat the selection process until we get a valid point. For each trial, we generate an array with $n$ entries and initialize each entry with a uniform random number between $-1$ and 1. Since the dot product of the vector with itself is the square of its length, we can use the dot function of numpy to check whether the point is in the ball. If it is in the ball, we return the point. Notice that we also track the number of trials and we will return it as well.
+The code first enters an infinite loop so that we can repeat the selection process until we get a valid point. For each trial, we generate an array with $n$ entries and initialize each entry with a uniform random number between $-1$ and 1. Since the dot product of the vector with itself is the square of its length, we can use the dot function of numpy to check whether the point is in the ball, and if it is, we return the point. Notice that we also track the number of trials it takes to get a valid point and we return it along with the vector.
 
 \subsection{Python Simulation}
 
@@ -47,7 +47,7 @@ I selected 3141 points for dimensions 1 to 14 and recorded the average number of
     \includegraphics[scale=0.3]{manim/project/images/Trials vs. Dimension Log.png}
 \end{center}
 
-As you can see, as the dimension increases, the number of trials increases very rapidly. Even when we switch to log scale for the number of trials, the graph still appears to be concave up. This indicates that the number of trials may grow faster than exponentially with dimension. In 14 dimensions, each point on average requires way over 10,000 trials. We can imagine that in higher dimensions, it takes even more trials. How did that happen?
+As you can see, as the dimension increases, the number of trials increases very rapidly. In just 14 dimensions, each point on average already requires more than 10,000 trials. We can imagine that in higher dimensions, it takes even more trials. Even when we switch to log scale for the number of trials, the graph still appears to be concave up. This indicates that the number of trials may grow faster than exponentially with dimension. How did that happen?
 
 \subsection{Volume of the Unit Ball}
 
@@ -210,9 +210,13 @@ Even when $n$ is big, the program still finds random points in an $n$-dimensiona
 
 \section{Summary}
 
-To recap, we first tried to use rejection sampling to select random points in the unit ball. However, an experiment with python shows that the number of trials increases very quickly as we raise the dimension. To investigate why this is the case, we calculated the volume of an $n$-dimensional ball and observed that the ratio between the volume of the ball and that of the box decays faster than exponentially. Since the probability that any particular trial succeeds is equal to that ratio, and the expected number of trials is the inverse of that probability, the number of trials increases faster than exponentially as dimension increases.
+To recap, we first tried to use rejection sampling to select random points in the unit ball. However, after a simulation and a calculation of the volume of an $n$-dimensional ball, we discovered that the number of trials needed to get a valid point increases faster than exponentially as dimension increases.
 
-We then tried to use spherical coordinates, but decided that it was too difficult to determine the distribution of each variable. Instead, we turned to the method of selecting a random direction and a random distance. The first task is equivalent to selecting a uniformly random point on a sphere. We tried to select points in the box and then normalize them, but that did not result in a uniform distribution. To tackle this problem, we had to think outside the box and use a distribution that is rotationally invariant: the standard multivariate normal distribution. The second task generalizes easily from the two-dimensional case. We calculated the CDF of the distance from the origin and then used inverse transform sampling.
+We then tried to use spherical coordinates, but decided that it was too difficult to determine the distribution of each variable. Instead, we turned to the method of selecting a random direction and a random distance.
+
+The first task is equivalent to selecting a uniformly random point on a sphere. We tried to select points in the box and then normalize them, but that did not result in a uniform distribution. To tackle this problem, we had to think outside the box and use a distribution that is rotationally invariant: the standard multivariate normal distribution.
+
+The second task generalizes easily from the two-dimensional case. We calculated the CDF of the distance from the origin and then used inverse transform sampling.
 
 \section{Reflection}
 
