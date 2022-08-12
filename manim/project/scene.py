@@ -635,12 +635,10 @@ class NormalSampSim3D(ThreeDScene):
         self.set_camera_orientation(phi=PI / 3, theta=PI / 4)
         self.begin_ambient_camera_rotation()
 
-        axes = ThreeDAxes(x_range=(-1, 1, 0.2),
-                          y_range=(-1, 1, 0.2),
-                          z_range=(-1, 1, 0.2))
-        self.add(axes)
+        # axes = ThreeDAxes()
+        # self.add(axes)
 
-        r = 1
+        r = 3
         p = 3141  # Number of points
         points = np.empty((p, 3))
         for i in range(p):
@@ -659,3 +657,21 @@ class NormalSampSim3D(ThreeDScene):
 
         self.play(Create(dots), lag_ratio=0.1, run_time=10)
         self.wait(1)
+
+
+class References(Scene):
+    def construct(self):
+        ref_txt = Text("References")
+        ref_txt.to_edge(UP)
+        self.play(Write(ref_txt))
+
+        refs = BulletedList(r"Justin's video ``The BEST Way to Find a Random Point in a Circle''",
+                            r"\textit{Vector Calculus, Linear Algebra, and Differential Forms: A Unified Approach} by John Hubbard and Barbara Burke Hubbard",
+                            r"\textit{Foundations of Data Science} by Avrim Blum, John Hopcroft, and Ravindran Kannan",
+                            r"\textit{Introduction to Probability} by David F. Anderson, Timo Sepp\"{a}l\"{a}inen, and Benedek Valk\'{o}",
+                            r"This website helped me generate the graph of the PDF of the standard multivariate normal: https://scipython.com/blog/visualizing-the-bivariate-gaussian-distribution/",
+                            r"Manim, numpy, and matplotlib documentations")
+        refs.scale_to_fit_width(12)
+        refs.next_to(ref_txt, DOWN)
+        self.play(Write(refs, run_time=5))
+        self.wait(5)

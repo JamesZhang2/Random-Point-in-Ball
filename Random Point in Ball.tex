@@ -179,9 +179,21 @@ Here's my python code that generates random points in unit balls using this proc
 
 % Manim animation for 2 and 3 dimensions
 
+\section{Summary}
+
+To recap, we first tried to use rejection sampling to select random points in the unit ball. However, an experiment with python shows that the number of trials increases very quickly as we raise the dimension. To investigate why this is the case, we calculated the volume of an $n$-dimensional ball and observed that the ratio between the volume of the ball and that of the box decays faster than exponentially. Since the probability that any particular trial succeeds is equal to that ratio, and the expected number of trials is the inverse of that probability, the number of trials increases faster than exponentially as dimension increases.
+
+We then tried to use spherical coordinates, but decided that it was too difficult to determine the distribution of each variable. Instead, we turned to the method of selecting a random direction and a random distance. The first task is equivalent to selecting a uniformly random point on a sphere. We tried to select points in the box and then normalize them, but that did not result in a uniform distribution. To tackle this problem, we had to think outside the box and use a distribution that is rotationally invariant: the standard multivariate normal distribution. The second task generalizes easily from the two-dimensional case. We calculated the CDF of the distance from the origin and then used inverse transform sampling.
+
 \section{Reflection}
 
-\section{Acknowledgements}
+I personally find the topic of higher-dimensional geometry very intriguing, because many results in higher dimensions are surprising and counterintuitive. I was amazed when I first learned how quickly the volume of the ball decays relative to the box that surrounds it. There are many other seemingly strange results which I didn't have time to cover, such as almost all the volume of the high-dimensional ball is concentrated near the equator.
+
+On the other hand, making this video is a rewarding experience for me. Although I learned about this material in class, I had to organize the key points so that I can explain them to you in a relatively short video. In addition, I took up the challenge to teach myself Manim. I was very impressed by the neat style and the cool animations in 3b1b's videos, along with the excellent explanations, so I was determined to learn to use Manim. Despite being only a beginner in this tool, I already feel the power of abstraction compared to simply using PowerPoint.
+
+I hope this was a pleasant journey, and I hope to see you again in next year's Summer of Math Exposition.
+
+\section{References}
 
 \begin{itemize}
   \item Justin's video: \href{https://www.youtube.com/watch?v=4y_nmpv-9lI&list=PLnQX-jgAF5pTkwtUuVpqS5tuWmJ-6ZM-Z&index=6&t=3s}{``The BEST Way to Find a Random Point in a Circle"}
@@ -189,6 +201,7 @@ Here's my python code that generates random points in unit balls using this proc
   \item \textit{Foundations of Data Science} by Avrim Blum, John Hopcroft, and Ravindran Kannan
   \item \textit{Introduction to Probability} by David F. Anderson, Timo Sepp\"{a}l\"{a}inen, and Benedek Valk\'{o}
   \item \href{https://scipython.com/blog/visualizing-the-bivariate-gaussian-distribution/}{This website} helped me generate the graph of the PDF of the standard multivariate normal
+  \item Manim, numpy, and matplotlib documentations
 \end{itemize}
 
 \end{document}
