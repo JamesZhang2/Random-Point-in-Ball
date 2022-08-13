@@ -127,6 +127,21 @@ class RejSampling(Scene):
         self.play(*[FadeOut(obj) for obj in self.mobjects])
 
 
+class BallVolumeIntro(Scene):
+    def construct(self):
+        x_trials = Text(
+            "X: Number of trials to select a valid point", t2s={"X": ITALIC})
+        x_trials.scale(0.7)
+        x_geom = MathTex(r"X \sim \mathrm{Geom}(p)")
+        kappa_n = MathTex(r"\kappa_n = \mathrm{Vol(Box)} = 2^n")
+        beta_n = MathTex(r"\beta_n = \mathrm{Vol(Ball)}")
+        prob = MathTex(
+            r"p = P(\text{Random point in ball}) = \frac{\mathrm{Vol(Ball)}}{\mathrm{Vol(Box)}} = \frac{\beta_n}{\kappa_n}")
+        txt_group = VGroup(x_trials, x_geom, kappa_n, beta_n, prob)
+        txt_group.arrange(DOWN, aligned_edge=LEFT)
+        self.add(txt_group)
+
+
 class BallIntegral(ThreeDScene):
     def construct(self):
         axes = ThreeDAxes(x_range=(-3.6, 3.6, 0.6),
