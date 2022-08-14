@@ -133,13 +133,32 @@ class BallVolumeIntro(Scene):
             "X: Number of trials to select a valid point", t2s={"X": ITALIC})
         x_trials.scale(0.7)
         x_geom = MathTex(r"X \sim \mathrm{Geom}(p)")
-        kappa_n = MathTex(r"\kappa_n = \mathrm{Vol(Box)} = 2^n")
         beta_n = MathTex(r"\beta_n = \mathrm{Vol(Ball)}")
+        kappa_n = MathTex(r"\kappa_n = \mathrm{Vol(Box)} = 2^n")
         prob = MathTex(
             r"p = P(\text{Random point in ball}) = \frac{\mathrm{Vol(Ball)}}{\mathrm{Vol(Box)}} = \frac{\beta_n}{\kappa_n}")
-        txt_group = VGroup(x_trials, x_geom, kappa_n, beta_n, prob)
+        txt_group = VGroup(x_trials, x_geom, beta_n, kappa_n, prob)
         txt_group.arrange(DOWN, aligned_edge=LEFT)
-        self.add(txt_group)
+
+        self.play(FadeIn(x_trials))
+        self.wait(5)
+
+        self.play(FadeIn(x_geom))
+        self.wait(5)
+
+        self.play(FadeIn(beta_n))
+        self.wait(3)
+
+        self.play(FadeIn(kappa_n))
+        self.wait(7)
+
+        self.play(FadeIn(prob))
+        self.wait(10)
+
+        self.play(Indicate(beta_n))
+        self.wait(5)
+
+        self.play(*[FadeOut(obj) for obj in self.mobjects])
 
 
 class BallIntegral(ThreeDScene):
@@ -151,19 +170,26 @@ class BallIntegral(ThreeDScene):
                           y_length=12,
                           z_length=8)
         self.set_camera_orientation(
-            phi=80 * DEGREES, theta=-80 * DEGREES, distance=5)
+            phi=80 * DEGREES, theta=-95 * DEGREES, distance=5)
         self.add(axes)
 
         r = 3
 
-        sphere = Surface(lambda u, v: np.array([
-            r * np.sin(u) * np.cos(v),
-            r * np.sin(u) * np.sin(v),
-            r * np.cos(u)
-        ]), u_range=(0, PI), v_range=(0, 2 * PI))
-        sphere.set_opacity(0.7)
+        # sphere = Surface(lambda u, v: np.array([
+        #     r * np.sin(u) * np.cos(v),
+        #     r * np.sin(u) * np.sin(v),
+        #     r * np.cos(u)
+        # ]), u_range=(0, PI), v_range=(0, 2 * PI))
 
-        # self.add(sphere)
+        # Create the sphere
+        sphere = Sphere(ORIGIN, radius=r)
+        sphere.set_opacity(0.85)
+        self.play(Create(sphere))
+        self.wait(2)
+
+        # Dim the sphere
+        self.play(sphere.animate.set_opacity(0.15))
+        self.wait(2)
 
         def circle_fun(x):
             ''' Generates the parametric function of a circle with the given
@@ -175,9 +201,9 @@ class BallIntegral(ThreeDScene):
                 np.sqrt(r ** 2 - x ** 2) * np.sin(t)
             ]), t_range=(0, 2 * PI))
 
-        def thin_strip(x, dx):
-            ''' Generates a thin strip surface between the circle at x and
-                the circle at x + dx.
+        def strip_fun(x, dx):
+            ''' Generates the parametric function of a thin strip surface
+                between the circle at x and the circle at x + dx.
             '''
             return Surface(lambda u, v: np.array([
                 x + u * dx,
@@ -189,21 +215,65 @@ class BallIntegral(ThreeDScene):
         dx = r * 0.1
         x_1 = x_0 + dx
 
+        # Create the circles and the thin strip
         x_0_circ = circle_fun(x_0)
         x_1_circ = circle_fun(x_1)
-        x_0_circ.set_color(RED)
+        x_0_circ.set_color(YELLOW)
         x_1_circ.set_color(GREEN)
-        self.add(x_0_circ)
-        self.add(x_1_circ)
 
-        strip = thin_strip(x_0, dx)
+        strip = strip_fun(x_0, dx)
         strip.set_color(RED)
-        self.add(strip)
+        self.play(Create(x_0_circ), Create(x_1_circ), Create(strip))
+        self.wait(2)
+
+        # Draw the right triangle and label each line segment
+        r_line = Line3D(start=ORIGIN, end=np.array(
+            [x_0, 0, np.sqrt(r ** 2 - x_0 ** 2)]), thickness=0.02, color=WHITE)
+        r_label = MathTex(r"1")
+        r_label.rotate(PI / 2, axis=RIGHT)
+        r_label.move_to(r_line.get_center() + UL * MED_SMALL_BUFF)
+
+        x_line = Line3D(start=ORIGIN, end=np.array(
+            [x_0, 0, 0]), thickness=0.02, color=WHITE)
+        x_label = MathTex(r"x_1")
+        x_label.rotate(PI / 2, axis=RIGHT)
+        x_label.next_to(x_line, UP, buff=LARGE_BUFF)
+
+        circ_r_line = Line3D(start=np.array([x_0, 0, 0]), end=np.array(
+            [x_0, 0, np.sqrt(r ** 2 - x_0 ** 2)]), thickness=0.02, color=WHITE)
+        circ_r_label = MathTex(r"r")
+        circ_r_label.rotate(PI / 2, axis=RIGHT)
+        circ_r_label.next_to(circ_r_line, RIGHT, buff=SMALL_BUFF)
+
+        self.play(Create(r_line))
+        self.play(Write(r_label))
+        self.wait(2)
+
+        self.play(Create(x_line))
+        self.play(Write(x_label))
+        self.wait(2)
+
+        self.play(Create(circ_r_line))
+        self.play(Write(circ_r_label))
+        self.wait(2)
+
+        # Volume of thin strip
+        r_expr = MathTex(r"r = \sqrt{1 - x_1^2}")
+        dV = MathTex(r"dV = r^{n-1} \beta_{n-1} \, dx_1")
+        txt_group = VGroup(r_expr, dV)
+        txt_group.arrange(DOWN, aligned_edge=LEFT)
+        txt_group.to_edge(UP + RIGHT)
+        self.add_fixed_in_frame_mobjects(txt_group)
+        self.remove(txt_group)
+        self.play(Create(txt_group))
+        self.wait(2)
+
+        self.play(*[FadeOut(obj) for obj in self.mobjects])
 
 
 class BallVolume(Scene):
     def construct(self):
-        # Relation between beta_n and beta_{n-2}
+        # Relation between beta_n and beta_{n-1}
         r_x1 = MathTex(r"r = \sqrt{1 - x_1^2}")
         beta_n = MathTex(r"\beta_n &= \int_{-1}^1 r^{n-1} \beta_{n-1} \, dx_1")
         beta_n_2 = MathTex(
@@ -441,6 +511,8 @@ class SphericalCoord(ThreeDScene):
         self.play(Create(equator))
         self.wait(2)
 
+        self.play(*[FadeOut(obj) for obj in self.mobjects])
+
 
 class SphereDistIntro(Scene):
     def construct(self):
@@ -607,7 +679,7 @@ class PointOnSphereWrong(Scene):
         txt_group = VGroup(len_eq, prob_ratio, prob_eq_area,
                            root_2_sqr, incr_fast)
         txt_group.scale(0.6)
-        txt_group.arrange(DOWN)
+        txt_group.arrange(DOWN, aligned_edge=LEFT)
         txt_group.next_to(graph_group)
         root_n_pow.scale(0.6)
         prob_eq_vol.scale(0.6)
@@ -664,6 +736,8 @@ class RotatePlane(LinearTransformationScene):
                   [np.sin(theta), np.cos(theta)]]
         self.apply_matrix(matrix)
         self.wait()
+
+        self.play(*[FadeOut(obj) for obj in self.mobjects])
 
 
 class PointOnSphereRight(Scene):
@@ -728,6 +802,18 @@ class PointOnSphereRight(Scene):
                         t2s={"Y = QX": ITALIC})
         self.wait(1)
 
+        self.play(*[FadeOut(obj) for obj in self.mobjects])
+
+
+class UnifProof(Scene):
+    def construct(self):
+        pass
+
+
+class ChooseDist(Scene):
+    def construct(self):
+        pass
+
 
 def random_unit_vector(n):
     ''' Returns a unit vector in R^n chosen uniformly at random. '''
@@ -768,9 +854,9 @@ class NormalSampSim2D(Scene):
             background_stroke_width=0,
             insert_line_no=False)
         self.play(FadeIn(ns_code_rendered))
-        self.wait(2)
+        self.wait(30)
         self.play(FadeOut(ns_code_rendered))
-        self.wait(1)
+        self.wait(5)
 
         r = 3
         p = 3141  # Number of points
@@ -789,6 +875,8 @@ class NormalSampSim2D(Scene):
 
         self.play(Create(dots), lag_ratio=0.1, run_time=2)
         self.wait(1)
+
+        self.play(*[FadeOut(obj) for obj in self.mobjects])
 
 
 class NormalSampSim3D(ThreeDScene):
@@ -819,6 +907,13 @@ class NormalSampSim3D(ThreeDScene):
         self.play(Create(dots), lag_ratio=0.1, run_time=10)
         self.wait(1)
 
+        self.play(*[FadeOut(obj) for obj in self.mobjects])
+
+
+class SummaryReflection(Scene):
+    def construct(self):
+        pass
+
 
 class References(Scene):
     def construct(self):
@@ -831,7 +926,7 @@ class References(Scene):
                             r"\textit{Foundations of Data Science} by Avrim Blum, John Hopcroft, and Ravindran Kannan",
                             r"\textit{Introduction to Probability} by David F. Anderson, Timo Sepp\"{a}l\"{a}inen, and Benedek Valk\'{o}",
                             r"This website helped me generate the graph of the PDF of the standard multivariate normal: https://scipython.com/blog/visualizing-the-bivariate-gaussian-distribution/",
-                            r"Manim, numpy, and matplotlib documentations")
+                            r"Manim, numpy, and matplotlib documentations and tutorials")
         refs.scale_to_fit_width(12)
         refs.next_to(ref_txt, DOWN, buff=MED_LARGE_BUFF)
         self.play(Write(refs, run_time=5))

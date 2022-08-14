@@ -51,9 +51,11 @@ As you can see, as the dimension increases, the number of trials increases very 
 
 \subsection{Volume of the Unit Ball}
 
-Let $X$ be the number of trials that we need to select a valid point in the ball. Since each trial is independent, and we repeat until we succeed, $X$ is a geometric random variable. For any particular trial, the probability that the point we selected is in the ball is equal to the ratio between the volume of the ball and the volume of the box.
+Let $X$ be the number of trials that we need to select a valid point in the ball. Since each trial is independent, and we repeat until we succeed, $X$ is a geometric random variable.
 
-Let $\kappa_n$ be the volume of the $n$-dimensional box that we sample from, where $\kappa$ stands for ``cube''. Let $\beta_n$ be the volume of the $n$-dimensional unit ball. Since each component is randomly selected in $[-1, 1]$, the box has side length 2, so its $n$-dimensional volume is $\kappa_n = 2^n$. What about the $n$-dimensional volume of the ball?
+Let $\beta_n$ be the volume of the $n$-dimensional unit ball. Let $\kappa_n$ be the volume of the $n$-dimensional box that we sample from, where $\kappa$ stands for ``cube''. Since each component is randomly selected in $[-1, 1]$, the box has side length 2, so its $n$-dimensional volume is $2^n$.
+
+For any particular trial, the probability that the point we selected is in the ball is equal to the ratio between the volume of the ball and the volume of the box. Therefore, to find this probability, we need to find $\beta_n$, the volume of the $n$-dimensional unit ball.
 
 % Reference: Vector Calculus, Linear Algebra, and Differential Forms: A Unified Approach by Hubbard & Hubbard
 
@@ -220,7 +222,9 @@ The second task generalizes easily from the two-dimensional case. We calculated 
 
 \section{Reflection}
 
-I personally find the topic of higher-dimensional geometry very intriguing, because many results in higher dimensions are surprising and counterintuitive. I was amazed when I first learned how quickly the volume of the ball decays relative to the box that surrounds it. There are many other seemingly strange results which I didn't have time to cover, such as almost all the volume of the high-dimensional ball is concentrated near the equator.
+I personally find the topic of higher-dimensional geometry very intriguing, because many results in higher dimensions are surprising and counterintuitive. I was amazed when I first learned how quickly the volume of the ball decays relative to the box that surrounds it.
+
+% There are many other seemingly strange results which I didn't have time to cover, such as almost all the volume of the high-dimensional ball is concentrated near the equator.
 
 On the other hand, making this video is a rewarding experience for me. Although I learned about this material in class, I had to organize the key points so that I can explain them to you in a relatively short video. In addition, I took up the challenge to teach myself Manim. I was very impressed by the neat style and the cool animations in 3b1b's videos, along with the excellent explanations, so I was determined to learn to use Manim. Despite being only a beginner in this tool, I already feel the power of abstraction compared to simply using PowerPoint.
 
@@ -234,7 +238,7 @@ I hope this was a pleasant journey, and I hope to see you again in next year's S
     \item \textit{Foundations of Data Science} by Avrim Blum, John Hopcroft, and Ravindran Kannan
     \item \textit{Introduction to Probability} by David F. Anderson, Timo Sepp\"{a}l\"{a}inen, and Benedek Valk\'{o}
     \item \href{https://scipython.com/blog/visualizing-the-bivariate-gaussian-distribution/}{This website} helped me generate the graph of the PDF of the standard multivariate normal
-    \item Manim, numpy, and matplotlib documentations
+    \item Manim, numpy, and matplotlib documentations and tutorials
 \end{itemize}
 
 \end{document}
