@@ -14,7 +14,7 @@
 
 \section{Introduction}
 
-Hey everyone, I'm James. Last year, I watched some Summer of Math Exposition videos, and I really enjoyed them, so this year, I'm gonna make one myself.
+Hey everyone, I'm James. Last year, I watched some Summer of Math Exposition videos, and I really enjoyed them, so this year, I'm going to make one myself.
 
 One of the videos from last year that caught my attention was \href{https://www.youtube.com/watch?v=4y_nmpv-9lI&list=PLnQX-jgAF5pTkwtUuVpqS5tuWmJ-6ZM-Z&index=6&t=3s}{``The BEST Way to Find a Random Point in a Circle"} by Justin. Coincidentally, two of the courses that I took at university this year mentioned higher-dimensional volumes and geometry. So in this video, I'm going to extend Justin's results and talk about how to find a uniform random point in a high-dimensional ball. As you will see, the results in higher dimensions are quite different from those in 2 dimensions.
 
@@ -22,7 +22,7 @@ First of all, let me clarify what I mean by a high-dimensional ball. A ball is a
 
 \section{Rejection Sampling}
 
-The first method that Justin mentioned in his video was rejection sampling. The idea of rejection sampling is that we select a random point from a box, where each coordinate is selected uniformly at random between $-1$ and 1. If the point selected happened to be in the unit ball, we're done. If not, we reject that point and select another one. This generalizes easily to $n$ dimensions, so I'm going to implement it. Here's the code:
+The first method that Justin mentioned in his video was rejection sampling. The idea of rejection sampling is that we select a random point from a square, where each coordinate is selected uniformly at random between $-1$ and 1. If the point selected happened to be in the unit circle, we're done. If not, we reject that point and select another one. This generalizes easily to $n$ dimensions, so I'm going to implement it. Here's my code:
 
 \begin{verbatim}
 def rejection_sampling(n):
@@ -36,7 +36,7 @@ def rejection_sampling(n):
             return (vec, trials)
 \end{verbatim}
 
-The code first enters an infinite loop so that we can repeat the selection process until we get a valid point. For each trial, we generate an array with $n$ entries and initialize each entry with a uniform random number between $-1$ and 1. Since the dot product of the vector with itself is the square of its length, we can use the dot function of numpy to check whether the point is in the ball, and if it is, we return the point. Notice that we also track the number of trials it takes to get a valid point and we return it along with the vector.
+The code first enters an infinite loop so that we can repeat the selection process until we get a valid point. For each trial, we generate an array with $n$ entries and initialize each entry with a uniform random number between $-1$ and 1. Since the dot product of a vector with itself is the square of its length, we can use the dot function of numpy to check whether the point is in the ball, and if it is, we return the point. Notice that we also track the number of trials it takes to get a valid point and we return it along with the vector.
 
 \subsection{Python Simulation}
 
@@ -47,23 +47,25 @@ I selected 3141 points for dimensions 1 to 14 and recorded the average number of
     \includegraphics[scale=0.3]{manim/project/images/Trials vs. Dimension Log.png}
 \end{center}
 
-As you can see, as the dimension increases, the number of trials increases very rapidly. In just 14 dimensions, each point on average already requires more than 10,000 trials. We can imagine that in higher dimensions, it takes even more trials. Even when we switch to log scale for the number of trials, the graph still appears to be concave up. This indicates that the number of trials may grow faster than exponentially with dimension. How did that happen?
+As you can see, as the dimension increases, the number of trials increases very rapidly. In just 14 dimensions, each point on average already requires more than 10,000 trials. We can imagine that in higher dimensions, it takes even more trials to get a volid point. Even when we switch to log scale for the number of trials, the graph still appears to be concave up. This indicates that the number of trials may grow faster than exponentially with dimension. How did that happen?
 
 \subsection{Volume of the Unit Ball}
 
 Let $X$ be the number of trials that we need to select a valid point in the ball. Since each trial is independent, and we repeat until we succeed, $X$ is a geometric random variable.
 
-Let $\beta_n$ be the volume of the $n$-dimensional unit ball. Let $\kappa_n$ be the volume of the $n$-dimensional box that we sample from, where $\kappa$ stands for ``cube''. Since each component is randomly selected in $[-1, 1]$, the box has side length 2, so its $n$-dimensional volume is $2^n$.
+Let $\beta_n$ be the $n$-dimensional volume of the $n$-dimensional unit ball. Let $\kappa_n$ be the volume of the $n$-dimensional box that we sample from, where $\kappa$ stands for ``cube''. Since each component is randomly selected between $-1$ and 1, the box has side length 2, so its $n$-dimensional volume is $2^n$.
 
 For any particular trial, the probability that the point we selected is in the ball is equal to the ratio between the volume of the ball and the volume of the box. Therefore, to find this probability, we need to find $\beta_n$, the volume of the $n$-dimensional unit ball.
 
 % Reference: Vector Calculus, Linear Algebra, and Differential Forms: A Unified Approach by Hubbard & Hubbard
 
-We will use integration and Fubini's Theorem to find out $\beta_n$. We cut the ball into small slices, where the volume of each slice can be approximated by that of a small cylinder. We vary the $x_1$ coordinate from $-1$ to 1 and add up the volumes of the small cylinders. The height of each cylinder is $dx_1$. The base is an $(n-1)$-dimensional ball. In the special case of three dimensions, the base of each slice is a circle.
+We will set up an integral to figure out $\beta_n$. First, we divide the ball into small slices, where each slice is approximately a small cylinder. We vary the $x_1$ coordinate from $-1$ to 1 and add up the volumes of these small cylinders. The height of each cylinder is $dx_1$. The base is an $(n-1)$-dimensional ball. In the special case of three dimensions, the base of each slice is a circle.
 
-In general, the radius of the base is $r = \sqrt{1 - x_1^2}$ by the Pythagorean Theorem. Since volume scales appropriately according to dimension, the $(n-1)$-dimensional volume of the base is $r^{n-1} \beta_{n-1}$, where $\beta_{n-1}$ is the volume of the $(n-1)$-dimensional unit ball. Thus,
+Since the radius of the $n$-dimensional ball is 1, and this side has length $x_1$, the radius of the base is $r = \sqrt{1 - x_1^2}$ by the Pythagorean Theorem. Since volume scales appropriately according to dimension, the $(n-1)$-dimensional volume of the base is $r^{n-1} \beta_{n-1}$, where $\beta_{n-1}$ is the volume of the $(n-1)$-dimensional unit ball. Thus, the $n$-dimensional volume of this small slice is base times height, or $dV = r^{n-1} \beta_{n-1} \, dx_1$.
+
+Setting up the integral, we have
 \[
-    \beta_n = \int_{-1}^1 r^{n-1} \beta_{n-1} \, dx_1 = \beta_{n-1} \int_{-1}^1 (1 - x_1^2)^{\frac{n-1}{2}} \, dx_1.
+    \beta_n = \int dV = \int_{-1}^1 r^{n-1} \beta_{n-1} \, dx_1 = \beta_{n-1} \int_{-1}^1 (1 - x_1^2)^{\frac{n-1}{2}} \, dx_1.
 \]
 
 We pulled out $\beta_{n-1}$ from the integral because it is just a constant. It remains to figure out the integral
@@ -99,13 +101,15 @@ Rearranging, we get
     c_n = \frac{n-1}{n}c_{n-2}.
 \]
 
-The base cases are $c_1 = \int_{-1}^1 (1 - t^2)^0 \, dt = 2$ (by simple integration) and $c_2 = \int_{-1}^1 (1 - t^2)^{\frac{1}{2}} \, dt = \frac{\pi}{2}$ (area of a semicircle). From geometry, we have $\beta_1 = 2$, $\beta_2 = \pi$, $\beta_3 = \frac{4}{3}\pi$.
+The base cases are $c_1 = \int_{-1}^1 (1 - t^2)^0 \, dt = 2$ (by simple integration) and $c_2 = \int_{-1}^1 (1 - t^2)^{\frac{1}{2}} \, dt = \frac{\pi}{2}$ (area of a semicircle). A quick check from geometry: we have $\beta_0 = 1$ (a single point has 0-dimensional volume 1), $\beta_1 = 2$, and $\beta_2 = \pi$.
+
+(For video: Recall that $\beta_n = c_n \beta_{n - 1}$. If we go from $n-1$ dimensions to $n$ dimensions, $\kappa$ increases by a factor of 2, whereas $\beta$ is multiplied by a factor of $c_n$. Therefore, the ratio between $\beta$ and $\kappa$ gets multiplied by a factor of $\frac{c_n}{2}$ each time we raise a dimension.)
 
 Recall that $\beta_n = c_n \beta_{n - 1}$. In other words, the ratio between $\beta_n$ and $\beta_{n - 1}$ is $c_n$. If $c_n$ were a constant that is less than 2, say 1.5, then every time we raise a dimension, we double the volume of the box ($\kappa_{n} = 2 \kappa_{n - 1}$), but the volume of the ball only increases by a factor of 1.5. The ratio between the volume of the ball and the volume of the box ($\frac{\beta_n}{\kappa_n}$) will thus decrease by a factor of $\frac{3}{4}$. Since the probability that a particular trial succeeds is equal to that ratio, the probability will decay exponentially by a factor of $\frac{3}{4}$ each time.
 
 However, in reality, $c_n = \frac{n-1}{n}c_{n-2}$, and since $\frac{n-1}{n} < 1$, this means that the multiplier $c_n$ is not a constant: it decreases every time! In fact, there will be an $n$ such that $c_n < 1$, and from that point on, the volume of the ball decreases as we increase dimension. (Here, we're talking about the numerical value of the volume, ignoring the units.)
 
-Therefore, the ratio and thus the probability decays faster than exponentially. Since for a geometric random variable $X$ with success probability $p$, the expected value of $X$ is $\frac{1}{p}$, this implies that the expected number of trials needed to sample a valid point increases faster than exponentially.
+Therefore, the ratio and thus the probability decays faster than exponentially. Since the expected value of a $\mathrm{Geom}(p)$ random variable is $\frac{1}{p}$, this implies that the expected number of trials needed to sample a valid point increases faster than exponentially.
 
 \section{Sphere and Distance Method}
 

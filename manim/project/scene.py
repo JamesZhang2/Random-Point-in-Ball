@@ -3,6 +3,8 @@ import random
 import numpy as np
 from manim import *
 
+CITATION_SIZE = 0.3
+
 
 class Intro(Scene):
     def construct(self):
@@ -163,12 +165,18 @@ class BallVolumeIntro(Scene):
 
 class BallIntegral(ThreeDScene):
     def construct(self):
+        citation = Text("Adapted from Vector Calculus, Linear Algebra, and Differential Forms: A Unified Approach by John Hubbard and Barbara Burke Hubbard", t2s={
+            "Vector Calculus, Linear Algebra, and Differential Forms: A Unified Approach": ITALIC})
+        citation.scale(CITATION_SIZE)
+        citation.to_edge(DOWN + RIGHT)
+        self.add_fixed_in_frame_mobjects(citation)
+
         axes = ThreeDAxes(x_range=(-3.6, 3.6, 0.6),
                           y_range=(-3.6, 3.6, 0.6),
                           z_range=(-2.4, 2.4, 0.6),
                           x_length=12,
                           y_length=12,
-                          z_length=8)
+                          z_length=6)
         self.set_camera_orientation(
             phi=80 * DEGREES, theta=-95 * DEGREES, distance=5)
         self.add(axes)
@@ -273,9 +281,16 @@ class BallIntegral(ThreeDScene):
 
 class BallVolume(Scene):
     def construct(self):
+        citation = Text("Adapted from Vector Calculus, Linear Algebra, and Differential Forms: A Unified Approach by John Hubbard and Barbara Burke Hubbard", t2s={
+            "Vector Calculus, Linear Algebra, and Differential Forms: A Unified Approach": ITALIC})
+        citation.scale(CITATION_SIZE)
+        citation.to_edge(DOWN + RIGHT)
+        self.add(citation)
+
         # Relation between beta_n and beta_{n-1}
         r_x1 = MathTex(r"r = \sqrt{1 - x_1^2}")
-        beta_n = MathTex(r"\beta_n &= \int_{-1}^1 r^{n-1} \beta_{n-1} \, dx_1")
+        beta_n = MathTex(
+            r"\beta_n &= \int dV = \int_{-1}^1 r^{n-1} \beta_{n-1} \, dx_1")
         beta_n_2 = MathTex(
             r"\beta_n &= \beta_{n-1} \int_{-1}^1 (1 - x_1^2)^{\frac{n-1}{2}} \, dx_1")
         r_x1.next_to(beta_n, UP)
@@ -430,13 +445,14 @@ class BallVolume(Scene):
         kappa_rel = MathTex(
             r"\kappa_{n - 1} \stackrel{\times 2}{\longrightarrow} \kappa_n")
         kappa_rel.next_to(beta_cn, DOWN)
-        self.play(FadeIn(kappa_rel))
+        self.play(FadeIn(kappa_rel), FadeOut(citation))
         self.wait(3)
 
         beta_rel = MathTex(
             r"\beta_{n - 1} \stackrel{\times c_n}{\longrightarrow} \beta_n")
         beta_rel.next_to(kappa_rel, DOWN, buff=MED_LARGE_BUFF)
         self.play(FadeIn(beta_rel))
+        self.wait(3)
 
         bk_group = VGroup(kappa_rel, beta_rel)
 
@@ -461,6 +477,7 @@ class BallVolume(Scene):
         ex_group.next_to(prob, DOWN)
         self.play(FadeIn(ex))
         self.play(GrowFromCenter(incr_fast))
+        self.wait(5)
 
         self.play(*[FadeOut(obj) for obj in self.mobjects])
 
@@ -571,6 +588,12 @@ class SphereDistIntro(Scene):
 
 class PointOnSphereWrong(Scene):
     def construct(self):
+        citation = Text(
+            "I learned this result from Professor Robert Kleinberg.")
+        citation.scale(CITATION_SIZE)
+        citation.to_edge(DOWN + RIGHT)
+        self.add(citation)
+
         r = 3
         square = Square(side_length=r * 2)
         circle = Circle(radius=r)
@@ -749,8 +772,10 @@ class PointOnSphereRight(Scene):
         orthonormal = MathTex(
             r"\begin{bmatrix} \cos(\theta) \\ \sin(\theta) \end{bmatrix} \text{ and } \begin{bmatrix} -\sin(\theta) \\ \cos(\theta) \end{bmatrix} \text{ are orthonormal}")
         norm_1 = MathTex(r"\sqrt{\cos^2(\theta) + \sin^2(\theta)} = 1")
+        norm_1.scale(0.7)
         dot_0 = MathTex(
             r"\begin{bmatrix} \cos(\theta) \\ \sin(\theta) \end{bmatrix} \cdot \begin{bmatrix} -\sin(\theta) \\ \cos(\theta) \end{bmatrix} = 0")
+        dot_0.scale(0.7)
 
         rows_also = Text(
             "Similarly, the row vectors of Q are also orthonormal.", t2s={"Q": ITALIC})
@@ -762,7 +787,13 @@ class PointOnSphereRight(Scene):
         self.play(FadeIn(q_mat_2d))
         self.wait(1)
 
-        self.play(FadeIn(orthonormal), FadeIn(norm_1), FadeIn(dot_0))
+        self.play(FadeIn(orthonormal))
+        self.wait(1)
+
+        self.play(FadeIn(norm_1))
+        self.wait(1)
+
+        self.play(FadeIn(dot_0))
         self.wait(1)
 
         self.play(FadeIn(rows_also))
@@ -790,7 +821,7 @@ class PointOnSphereRight(Scene):
         x_vec = MathTex(
             r"X = \begin{bmatrix} X_1 \\ \vdots \\ X_n \end{bmatrix}, X_i \sim \mathcal{N}(0, 1)")
         y_qx = MathTex(
-            r"Y = QX = \begin{bmatrix} Y_1 \\ \vdots \\ Y_n \end{bmatrix}")
+            r"Y = \begin{bmatrix} Y_1 \\ \vdots \\ Y_n \end{bmatrix} = QX = \begin{bmatrix} q_{1, 1} & \ldots & q_{1, n} \\ \vdots & \ddots & \vdots \\ q_{n, 1} & \ldots & q_{n, n} \end{bmatrix} \begin{bmatrix} X_1 \\ \vdots \\ X_n \end{bmatrix}, X_i \sim \mathcal{N}(0, 1)")
         y1 = MathTex(r"Y_1 = q_{1, 1} X_1 + \ldots + q_{1, n} X_n")
         q_sq = MathTex(r"q_{1, 1}^2 + \ldots + q_{1, n}^2 = 1")
         mu_y1 = MathTex(
@@ -800,6 +831,40 @@ class PointOnSphereRight(Scene):
         y1_normal = MathTex(r"Y_1 \sim \mathcal{N}(0, 1)")
         y_normal = Text("Therefore, Y = QX is still a standard multivariate normal",
                         t2s={"Y = QX": ITALIC})
+
+        qx_group = VGroup(q_mat, x_vec)
+        qx_group.arrange(DOWN)
+        self.play(FadeIn(qx_group))
+        self.wait(1)
+
+        self.play(ReplacementTransform(q_mat, y_qx), FadeOut(x_vec))
+        self.wait(1)
+
+        y1.next_to(y_qx, DOWN)
+        self.play(y_qx.animate.shift(UP), FadeIn(y1))
+        self.wait(1)
+
+        self.play(FadeOut(y_qx), y1.animate.shift(UP * 3))
+        self.wait(1)
+
+        mu_var_group = VGroup(q_sq, mu_y1, var_y1)
+        mu_var_group.scale(0.7)
+        mu_var_group.arrange(DOWN)
+        mu_var_group.next_to(y1, DOWN)
+        self.play(FadeIn(q_sq))
+        self.wait(1)
+
+        self.play(FadeIn(mu_y1))
+        self.wait(1)
+
+        self.play(FadeIn(var_y1))
+        self.wait(1)
+
+        self.play(ReplacementTransform(y1, y1_normal), FadeOut(mu_var_group))
+        self.wait(1)
+
+        y_normal.scale(0.7)  # Text objects are bigger than MathTex objects
+        self.play(ReplacementTransform(y1_normal, y_normal))
         self.wait(1)
 
         self.play(*[FadeOut(obj) for obj in self.mobjects])
