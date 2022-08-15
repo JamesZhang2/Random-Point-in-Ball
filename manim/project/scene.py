@@ -512,21 +512,21 @@ class SphericalCoord(ThreeDScene):
                 r * np.cos(phi)
             ]), t_range=(0, 2 * PI))
 
-        phi_top = 20 * DEGREES
         phi_eqt = 90 * DEGREES  # Equator
-        top_circle = circle_fun(phi_top)
-        top_circle.set_color(GREEN)
+        phi_top = 20 * DEGREES
         equator = circle_fun(phi_eqt)
         equator.set_color(RED)
+        top_circle = circle_fun(phi_top)
+        top_circle.set_color(GREEN)
 
         self.play(Create(sphere))
-        self.wait(2)
-
-        self.play(Create(top_circle))
-        self.wait(2)
+        self.wait(30)
 
         self.play(Create(equator))
-        self.wait(2)
+        self.wait(10)
+
+        self.play(Create(top_circle))
+        self.wait(20)
 
         self.play(*[FadeOut(obj) for obj in self.mobjects])
 
@@ -584,6 +584,32 @@ class SphereDistIntro(Scene):
         self.wait(1)
 
         self.play(*[FadeOut(obj) for obj in self.mobjects])
+
+
+def get_diag_arc(r, eps, color):
+    ''' Returns an arc in the upper right corner
+        with radius r and width about 2 * r * eps. '''
+    diag_arc_start = math.atan2(1 - 2 * eps, 1)
+    diag_arc_end = math.atan2(1, 1 - 2 * eps)
+    diag_arc = Arc(arc_center=ORIGIN,
+                   radius=r,
+                   start_angle=diag_arc_start,
+                   angle=diag_arc_end - diag_arc_start)
+    diag_arc.set_color(color)
+    return diag_arc
+
+
+def get_vert_arc(r, eps, color):
+    ''' Returns an arc in the upper edge
+        with radius r and width about 2 * r * eps. '''
+    vert_arc_start = math.atan2(1, eps)
+    vert_arc_end = math.atan2(1, -eps)
+    vert_arc = Arc(arc_center=ORIGIN,
+                   radius=r,
+                   start_angle=vert_arc_start,
+                   angle=vert_arc_end - vert_arc_start)
+    vert_arc.set_color(color)
+    return vert_arc
 
 
 class PointOnSphereWrong(Scene):
@@ -654,22 +680,7 @@ class PointOnSphereWrong(Scene):
         self.play(FadeIn(vert_poly))
         self.wait(1)
 
-        diag_arc_start = math.atan2(1 - 2 * eps, 1)
-        diag_arc_end = math.atan2(1, 1 - 2 * eps)
-        diag_arc = Arc(arc_center=ORIGIN,
-                       radius=r,
-                       start_angle=diag_arc_start,
-                       angle=diag_arc_end - diag_arc_start)
-        diag_arc.set_color(GREEN_D)
-
-        vert_arc_start = math.atan2(1, eps)
-        vert_arc_end = math.atan2(1, -eps)
-        vert_arc = Arc(arc_center=ORIGIN,
-                       radius=r,
-                       start_angle=vert_arc_start,
-                       angle=vert_arc_end - vert_arc_start)
-        vert_arc.set_color(BLUE_D)
-
+        diag_arc = get_diag_arc(r, eps, GREEN_D)
         diag_arr = np.array([0.87 * r, (0.87 - 0.2 * eps) * r, 0])
         play_normalize_vec(diag_arr)
 
@@ -677,6 +688,7 @@ class PointOnSphereWrong(Scene):
         self.play(Indicate(diag_arc))
         self.wait(1)
 
+        vert_arc = get_vert_arc(r, eps, BLUE_D)
         vert_arr = np.array([-eps * 0.05 * r, 0.47 * r, 0])
         play_normalize_vec(vert_arr)
 
@@ -801,6 +813,9 @@ class PointOnSphereRight(Scene):
 
         self.play(*[FadeOut(obj) for obj in self.mobjects])
 
+
+class BellCurve(Scene):
+    def construct(self):
         # Graph of the PDF of the normal distribution
         axes = Axes(x_range=(-4, 4, 1), y_range=(0, 0.5, 0.1),
                     axis_config={"include_numbers": True})
@@ -815,6 +830,9 @@ class PointOnSphereRight(Scene):
 
         self.play(*[FadeOut(obj) for obj in self.mobjects])
 
+
+class RotationInvariant(Scene):
+    def construct(self):
         # Proof that the standard multivariate Gaussian is rotationally invariant
         q_mat = MathTex(
             r"Q = \begin{bmatrix} q_{1, 1} & \ldots & q_{1, n} \\ \vdots & \ddots & \vdots \\ q_{n, 1} & \ldots & q_{n, n} \end{bmatrix}")
@@ -867,17 +885,53 @@ class PointOnSphereRight(Scene):
         self.play(ReplacementTransform(y1_normal, y_normal))
         self.wait(1)
 
+        joint_df = ImageMobject("images/Multivariate Normal PDF.png")
+        self.play(FadeIn(joint_df))
+        self.wait(15)
+
         self.play(*[FadeOut(obj) for obj in self.mobjects])
 
 
 class UnifProof(Scene):
     def construct(self):
-        pass
+        r = 3
+        circle = Circle(radius=r)
+        self.play(Create(circle))
+
+        eps = 0.1
+        diag_arc = get_diag_arc(r, eps, GREEN_D)
+        diag_arc_copy = diag_arc.copy()
+        a_label = MathTex(r"A")
+        a_label.move_to(diag_arc.get_center() + UR * MED_LARGE_BUFF)
+
+        self.play(Create(diag_arc))
+        self.play(Indicate(diag_arc))
+        self.play(Write(a_label))
+        self.wait(2)
+
+        vert_arc = get_vert_arc(r, eps, BLUE_D)
+        b_label = MathTex(r"B")
+        b_label.next_to(vert_arc, UP)
+
+        self.play(Create(vert_arc))
+        self.play(Indicate(vert_arc))
+        self.play(Write(b_label))
+        self.wait(3)
+
+        self.play(FadeOut(vert_arc))
+        self.play(Rotate(diag_arc, PI / 4, about_point=ORIGIN))
+        self.play(FadeIn(diag_arc_copy))
+        self.wait(2)
+
+        self.play(*[FadeOut(obj) for obj in self.mobjects])
+
+
+# Play BellCurve scene again to mention Box-Muller
 
 
 class ChooseDist(Scene):
     def construct(self):
-        pass
+        pass  # TODO
 
 
 def random_unit_vector(n):
@@ -975,9 +1029,33 @@ class NormalSampSim3D(ThreeDScene):
         self.play(*[FadeOut(obj) for obj in self.mobjects])
 
 
-class SummaryReflection(Scene):
+class Summary(Scene):
     def construct(self):
-        pass
+        title = Text("Recap")
+        title.to_edge(UP)
+        self.play(Write(title))
+        pass  # TODO
+
+
+class Reflection(Scene):
+    def construct(self):
+        title = Text("Reflection")
+        title.to_edge(UP)
+        self.play(Write(title))
+
+        blist = BulletedList("Higher-dimensional geometry is interesting",
+                             "Making this video is a rewarding experience",
+                             "Teaching myself Manim - neat style, cool animations")
+        self.play(FadeIn(blist[0]))
+        self.wait(15)
+
+        self.play(FadeIn(blist[1]))
+        self.wait(15)
+
+        self.play(FadeIn(blist[2]))
+        self.wait(30)
+
+        self.play(*[FadeOut(obj) for obj in self.mobjects])
 
 
 class References(Scene):

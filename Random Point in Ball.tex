@@ -103,7 +103,7 @@ Rearranging, we get
 
 The base cases are $c_1 = \int_{-1}^1 (1 - t^2)^0 \, dt = 2$ (by simple integration) and $c_2 = \int_{-1}^1 (1 - t^2)^{\frac{1}{2}} \, dt = \frac{\pi}{2}$ (area of a semicircle). A quick check from geometry: we have $\beta_0 = 1$ (a single point has 0-dimensional volume 1), $\beta_1 = 2$, and $\beta_2 = \pi$.
 
-(For video: Recall that $\beta_n = c_n \beta_{n - 1}$. If we go from $n-1$ dimensions to $n$ dimensions, $\kappa$ increases by a factor of 2, whereas $\beta$ is multiplied by a factor of $c_n$. Therefore, the ratio between $\beta$ and $\kappa$ gets multiplied by a factor of $\frac{c_n}{2}$ each time we raise a dimension.)
+\ignore{For video: Recall that $\beta_n = c_n \beta_{n - 1}$. If we go from $n-1$ dimensions to $n$ dimensions, $\kappa$ increases by a factor of 2, whereas $\beta$ is multiplied by a factor of $c_n$. Therefore, the ratio between $\beta$ and $\kappa$ gets multiplied by a factor of $\frac{c_n}{2}$ each time we raise a dimension.}
 
 Recall that $\beta_n = c_n \beta_{n - 1}$. In other words, the ratio between $\beta_n$ and $\beta_{n - 1}$ is $c_n$. If $c_n$ were a constant that is less than 2, say 1.5, then every time we raise a dimension, we double the volume of the box ($\kappa_{n} = 2 \kappa_{n - 1}$), but the volume of the ball only increases by a factor of 1.5. The ratio between the volume of the ball and the volume of the box ($\frac{\beta_n}{\kappa_n}$) will thus decrease by a factor of $\frac{3}{4}$. Since the probability that a particular trial succeeds is equal to that ratio, the probability will decay exponentially by a factor of $\frac{3}{4}$ each time.
 
@@ -119,7 +119,7 @@ We can try to apply this idea to higher dimensions. In three dimensions, we can 
 
 Instead, we take a similar approach: First choose a direction uniformly at random, and then choose a random number between 0 and 1 to be the distance from the origin.
 
-Choosing a random direction in n-dimensional space is the same as choosing a random point on the n-dimensional unit sphere. A sphere is the boundary of a ball, and points on the unit sphere satisfy $x_1^2 + \ldots + x_n^2 = 1$.
+Choosing a random direction in $n$-dimensional space is the same as choosing a random point on the $n$-dimensional unit sphere. A sphere is the boundary of a ball, and points on the unit sphere satisfy $x_1^2 + \ldots + x_n^2 = 1$.
 
 So now, our task is divided into two parts: Choosing a random point on the unit sphere and choosing a distance from the origin. We'll focus on the first part for now and worry about choosing a distance later.
 
@@ -127,7 +127,9 @@ So now, our task is divided into two parts: Choosing a random point on the unit 
 
 \subsubsection{Failed Attempt}
 
-The first way that comes to mind is this: We choose a random vector from the box $[-1, 1]^n$ where each component is chosen uniformly in $[-1, 1]$. Then we normalize this vector by dividing away its length. The resulting vector is a unit vector, so it lies on the unit sphere.
+\ignore{For video: We choose a random vector from a box with side length 2 where each component is chosen uniformly from -1 to 1.}
+
+To select a random point on a sphere, we might try the following method: We choose a random vector from the box $[-1, 1]^n$ where each component is chosen uniformly in $[-1, 1]$. Then we normalize this vector by dividing away its length. The resulting vector is a unit vector, so it lies on the unit sphere.
 
 This seems like a good approach, but after some thought, we can see that the random points generated in this way aren't distributed uniformly on the sphere. Intuitively, It is more likely to choose a point near the diagonals of the box than near the center of the faces. Let's look at a two-dimensional example:
 
@@ -157,7 +159,7 @@ and the dot product between the two vectors is 0. Similarly, the rows of $Q$ are
 
 % Manim rotation animation
 
-To figure out a valid way to choose a point uniformly on the sphere, we need to think outside the box. Literally. Introducing the multivariate normal distribution. As you might know, the probability density function of a normal random variable is shaped like a bell curve. Here, we're using the standard multivariate normal distribution, denoted $\mathcal{N}(\mathbf{0}, I)$, which is a vector of independent random variables, where each component follows the standard normal distribution $\mathcal{N}(0, 1)$. (Here I'm using ``normal'' and ``Gaussian'' interchangeably.)
+To figure out a valid way to choose a point uniformly on the sphere, we need to think outside the box. Literally. Introducing the multivariate normal distribution. As you might know, the probability density function of a normal random variable is shaped like a bell curve. Here, we're using the standard multivariate normal distribution, denoted $\mathcal{N}(\mathbf{0}, I)$, which is a vector of independent random variables, each of which follows the standard normal distribution $\mathcal{N}(0, 1)$. (Here I'm using ``normal'' and ``Gaussian'' interchangeably.)
 
 You might also know that any linear combination of independent normal random variables is still a normal random variable. We can use this fact to show that the standard multivariate normal distribution is rotationally invariant:
 
@@ -166,11 +168,11 @@ $X = \begin{bmatrix}
         X_1 \\ \vdots \\ X_n
     \end{bmatrix}$ is a standard multivariate normal. Then each $X_i$ is a Gaussian with mean 0 and variance 1.
 
-Let $q_{1,1}, \ldots, q_{1,n}$ be the first row of $Q$. Then the first element of $QX$ is $Y_1 = q_{1,1} X_1 + \ldots + q_{1,n} X_n$. Since $Q$ is orthogonal, $q_{1,1}^2 + \ldots + q_{1,n}^2 = 1$.
+Let $q_{1,1}, \ldots, q_{1,n}$ be the first row of $Q$. Then the first element of $Y = QX$ is $Y_1 = q_{1,1} X_1 + \ldots + q_{1,n} X_n$. Since $Q$ is orthogonal, $q_{1,1}^2 + \ldots + q_{1,n}^2 = 1$.
 
 Since the $X_i$'s are independent Gaussian random variables, the linear combination is still a Gaussian random variable. Moreover, by linearity of expectation, the mean of $Y_1$ is $\mu(Y_1) = q_{1,1} \mu(X_1) + \ldots + q_{1,n} \mu(X_n) = 0$, and by independence, the variance of $Y_1$ is $\Var(Y_1) = q_{1,1}^2 \Var(X_1) + \ldots + q_{1,n}^2 \Var(X_n) = q_{1,1}^2 + \ldots + q_{1,n}^2 = 1$.
 
-We have shown that $Y_m$ is a normal random variable. This is the same for each element of $Y = QX$, so $Y$ is still a standard multivariate normal. Thus $X$ is rotationally invariant.
+We have shown that $Y_1$ is a standard normal random variable. This is the same for each component of $Y = QX$. A quick calculation of covariance shows that the components of $Y$ are independent, so $Y$ is still a standard multivariate normal. Thus $X$ is rotationally invariant.
 
 Here's a graph of the joint density function of a 2-dimensional standard multivariate normal random variable. We can see from the density function that the distribution is indeed symmetric around the origin.
 
@@ -180,7 +182,7 @@ Here's a graph of the joint density function of a 2-dimensional standard multiva
 
 Now, we can first generate a random vector that follows the multivariate normal distribution and normalize it, and it will give a point on the unit sphere selected uniformly at random. To see why it is uniform, choose two different small patches of the sphere, $A$ and $B$, that are congruent to each other. Suppose that $p$ is the probability that a random unit vector chosen above falls in $A$. Then we can rotate the sphere so that $A$ coincides with $B$. Thus the probability that a chosen vector falls in $B$ after the rotation is $p$. Because the multivariate normal distribution is rotationally invariant, the distribution of points after the rotation is the same as the distribution before the rotation, so the probability that a random unit vector falls in $A$ after the rotation is also $p$.
 
-There is still the problem of how to generate a Gaussian random variable from a uniform random variable. This is a good topic for a separate video, and I'm just going to rely on the python library to do this, but for those who are interested, there is an algorithm called the Box-Muller Transform which does just that. The key feature of that algorithm is that it runs in polynomial time.
+There is still the problem of how to generate a Gaussian random variable from a uniform random variable, since the CDF of a Gaussian random variable does not have a closed elementary form. This is a good topic for a separate video, and I'm just going to rely on the python library to do this, but for those who are interested, there is an algorithm called the Box-Muller Transform which does just that. The key feature of that algorithm is that it runs in polynomial time.
 
 \subsection{Choosing the Distance}
 
