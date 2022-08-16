@@ -8,3 +8,4 @@ manim/**/*
 !manim/project/scene.py
 temp/
 recordings/
+videos/

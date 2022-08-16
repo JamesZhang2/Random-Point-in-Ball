@@ -657,8 +657,8 @@ class PointOnSphereWrong(Scene):
         for arr in arrs:
             unit_vecs.append(play_normalize_vec(arr))
 
+        self.wait(27)
         self.play(*[FadeOut(unit_vec) for unit_vec in unit_vecs])
-        self.wait(20)
 
         # End of first part of recording
 
@@ -690,7 +690,7 @@ class PointOnSphereWrong(Scene):
         self.play(FadeIn(diag_poly))
         self.wait(1)
         self.play(FadeIn(vert_poly))
-        self.wait(1)
+        self.wait(8)
 
         diag_arc = get_diag_arc(r, eps, GREEN_D)
         diag_arr = np.array([0.87 * r, (0.87 - 0.2 * eps) * r, 0])
@@ -698,7 +698,7 @@ class PointOnSphereWrong(Scene):
 
         self.play(Create(diag_arc))
         self.play(Indicate(diag_arc))
-        self.wait(1)
+        self.wait(6)
 
         vert_arc = get_vert_arc(r, eps, BLUE_D)
         vert_arr = np.array([-eps * 0.05 * r, 0.47 * r, 0])
@@ -706,7 +706,7 @@ class PointOnSphereWrong(Scene):
 
         self.play(Create(vert_arc))
         self.play(Indicate(vert_arc))
-        self.wait(1)
+        self.wait(5)
 
         graph_group = Group(*[obj for obj in self.mobjects])
         graph_group.remove(citation)
@@ -741,17 +741,17 @@ class PointOnSphereWrong(Scene):
         self.wait(1)
 
         self.play(FadeIn(prob_eq_area))
-        self.wait(1)
+        self.wait(3)
 
         self.play(FadeIn(root_2_sqr))
-        self.wait(1)
+        self.wait(10)
 
         self.play(ReplacementTransform(root_2_sqr, root_n_pow),
                   ReplacementTransform(prob_eq_area, prob_eq_vol))
-        self.wait(1)
+        self.wait(3)
 
         self.play(GrowFromCenter(incr_fast))
-        self.wait(1)
+        self.wait(15)
 
         self.play(*[FadeOut(obj) for obj in self.mobjects])
 
@@ -761,8 +761,9 @@ class RotateSquare(Scene):
         r = 2
         square = Square(side_length=r * 2)
         self.play(Create(square))
+        self.wait(10)
         self.play(Rotate(square, angle=PI / 4))
-        self.wait(1)
+        self.wait(15)
         self.play(Uncreate(square))
 
 
@@ -783,7 +784,7 @@ class RotatePlane(LinearTransformationScene):
         matrix = [[np.cos(theta), -np.sin(theta)],
                   [np.sin(theta), np.cos(theta)]]
         self.apply_matrix(matrix)
-        self.wait()
+        self.wait(10)
 
         self.play(*[FadeOut(obj) for obj in self.mobjects])
 
@@ -810,19 +811,19 @@ class PointOnSphereRight(Scene):
         q_group.arrange(DOWN)
 
         self.play(FadeIn(q_mat_2d))
-        self.wait(1)
+        self.wait(10)
 
         self.play(FadeIn(orthonormal))
-        self.wait(1)
+        self.wait(10)
 
         self.play(FadeIn(norm_1))
-        self.wait(1)
+        self.wait(10)
 
         self.play(FadeIn(dot_0))
-        self.wait(1)
+        self.wait(10)
 
         self.play(FadeIn(rows_also))
-        self.wait(1)
+        self.wait(10)
 
         self.play(*[FadeOut(obj) for obj in self.mobjects])
 
@@ -873,42 +874,42 @@ class RotationInvariant(Scene):
         qx_group = VGroup(q_mat, x_vec)
         qx_group.arrange(DOWN)
         self.play(FadeIn(qx_group))
-        self.wait(1)
+        self.wait(10)
 
         self.play(ReplacementTransform(q_mat, y_qx), FadeOut(x_vec))
-        self.wait(1)
+        self.wait(10)
 
         y1.next_to(y_qx, DOWN)
         self.play(y_qx.animate.shift(UP), FadeIn(y1))
-        self.wait(1)
+        self.wait(10)
 
         self.play(FadeOut(y_qx), y1.animate.shift(UP * 3))
-        self.wait(1)
+        self.wait(10)
 
         mu_var_group = VGroup(q_sq, mu_y1, var_y1)
         mu_var_group.scale(0.7)
         mu_var_group.arrange(DOWN)
         mu_var_group.next_to(y1, DOWN)
         self.play(FadeIn(q_sq))
-        self.wait(1)
+        self.wait(10)
 
         self.play(FadeIn(mu_y1))
-        self.wait(1)
+        self.wait(5)
 
         self.play(FadeIn(var_y1))
-        self.wait(1)
+        self.wait(10)
 
         self.play(ReplacementTransform(y1, y1_normal), FadeOut(mu_var_group))
-        self.wait(1)
+        self.wait(10)
 
         self.play(y1_normal.animate.to_edge(UP))
         self.wait(1)
 
         self.play(Write(cov))
-        self.wait(1)
+        self.wait(5)
 
         self.play(FadeOut(y1_normal), FadeOut(cov), FadeIn(y_normal))
-        self.wait(1)
+        self.wait(10)
 
         # Show image of the joint density function of the 2D Multivariate Normal
         joint_df = ImageMobject("images/Multivariate Normal PDF.png")
@@ -924,6 +925,7 @@ class UnifProof(Scene):
         r = 3
         circle = Circle(radius=r)
         self.play(Create(circle))
+        self.wait(10)
 
         eps = 0.1
         diag_arc = get_diag_arc(r, eps, GREEN_D)
@@ -934,7 +936,7 @@ class UnifProof(Scene):
         self.play(Create(diag_arc))
         self.play(Indicate(diag_arc))
         self.play(Write(a_label))
-        self.wait(2)
+        self.wait(7)
 
         vert_arc = get_vert_arc(r, eps, BLUE_D)
         b_label = MathTex(r"B")
@@ -943,12 +945,12 @@ class UnifProof(Scene):
         self.play(Create(vert_arc))
         self.play(Indicate(vert_arc))
         self.play(Write(b_label))
-        self.wait(3)
+        self.wait(7)
 
         self.play(FadeOut(vert_arc))
         self.play(Rotate(diag_arc, PI / 4, about_point=ORIGIN))
         self.play(FadeIn(diag_arc_copy))
-        self.wait(2)
+        self.wait(10)
 
         self.play(*[FadeOut(obj) for obj in self.mobjects])
 
@@ -965,6 +967,7 @@ class ChooseDist(Scene):
         title = Text("Cumulative Distribution Function (CDF)")
         title.to_edge(UP)
         self.play(Write(title))
+        self.wait(10)
 
         # F_X(r)
         fx_1 = MathTex(r"F_X(r) = P(X \leq r)")
@@ -977,13 +980,12 @@ class ChooseDist(Scene):
         fx_group.to_edge(LEFT)
 
         self.play(FadeIn(fx_1))
-        self.wait(1)
+        self.wait(10)
 
         self.play(FadeIn(fx_2))
-        self.wait(1)
+        self.wait(10)
 
         self.play(FadeIn(fx_3))
-        self.wait(1)
 
         # Graph
         axes = Axes(x_range=(0, 1.2, 0.5), y_range=(0, 1.2, 0.5),
@@ -1008,17 +1010,15 @@ class ChooseDist(Scene):
         graph_group.shift(DOWN)
 
         self.play(Create(axes))
-        self.wait(1)
-
         self.play(Create(cdf))
-        self.wait(1)
+        self.wait(5)
 
         self.play(Create(dot))
         self.wait(1)
 
         self.play(ReplacementTransform(cdf, cdf2),
                   dot.animate.move_to(axes.coords_to_point(x, x ** 10)))
-        self.wait(1)
+        self.wait(7)
 
         # Example for volume concentration near surface
         concen_surf = MathTex(
@@ -1026,7 +1026,7 @@ class ChooseDist(Scene):
         concen_surf.next_to(fx_group, DOWN)
         concen_surf.scale(0.7)
         self.play(FadeIn(concen_surf))
-        self.wait(1)
+        self.wait(10)
 
         self.play(FadeOut(concen_surf))
         self.wait(1)
@@ -1034,7 +1034,7 @@ class ChooseDist(Scene):
         r_expr = MathTex(r"X = F_X^{-1}(U) = \sqrt[n]{U}")
         r_expr.next_to(fx_group, DOWN)
         self.play(FadeIn(r_expr))
-        self.wait(1)
+        self.wait(10)
 
         self.play(*[FadeOut(obj) for obj in self.mobjects])
 
