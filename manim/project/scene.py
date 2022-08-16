@@ -21,7 +21,6 @@ class Intro(Scene):
         self.wait(15)
 
         self.play(FadeOut(hi), FadeOut(justin))
-        self.wait(1)
 
         # Problem to discuss in this video
         problem = Text(
@@ -35,14 +34,14 @@ class Intro(Scene):
         circ_def.next_to(problem, DOWN)
         ball_def.next_to(circ_def, DOWN)
 
-        self.play(Create(problem))
+        self.play(Create(problem), run_time=2)
         self.wait(15)
 
         self.play(Create(circ_def))
         self.wait(7)
 
         self.play(Create(ball_def))
-        self.wait(10)
+        self.wait(8)
 
         # Fade out all Mobjects
         self.play(*[FadeOut(obj) for obj in self.mobjects])
@@ -121,10 +120,10 @@ class RejSampling(Scene):
 
         self.play(FadeOut(rs_code_rendered))
         self.play(FadeIn(trials_linear))
-        self.wait(20)
+        self.wait(28)
 
         self.play(FadeIn(trials_log))
-        self.wait(20)
+        self.wait(12)
 
         self.play(*[FadeOut(obj) for obj in self.mobjects])
 
@@ -143,22 +142,22 @@ class BallVolumeIntro(Scene):
         txt_group.arrange(DOWN, aligned_edge=LEFT)
 
         self.play(FadeIn(x_trials))
-        self.wait(5)
+        self.wait(9)
 
         self.play(FadeIn(x_geom))
-        self.wait(5)
-
-        self.play(FadeIn(beta_n))
         self.wait(3)
 
+        self.play(FadeIn(beta_n))
+        self.wait(2.5)
+
         self.play(FadeIn(kappa_n))
-        self.wait(7)
+        self.wait(19)
 
         self.play(FadeIn(prob))
-        self.wait(10)
+        self.wait(9)
 
         self.play(Indicate(beta_n))
-        self.wait(5)
+        self.wait(2)
 
         self.play(*[FadeOut(obj) for obj in self.mobjects])
 
@@ -176,7 +175,7 @@ class BallIntegral(ThreeDScene):
                           z_range=(-2.4, 2.4, 0.6),
                           x_length=12,
                           y_length=12,
-                          z_length=6)
+                          z_length=8)
         self.set_camera_orientation(
             phi=80 * DEGREES, theta=-95 * DEGREES, distance=5)
         self.add(axes)
@@ -193,11 +192,10 @@ class BallIntegral(ThreeDScene):
         sphere = Sphere(ORIGIN, radius=r)
         sphere.set_opacity(0.85)
         self.play(Create(sphere))
-        self.wait(2)
+        self.wait(3)
 
         # Dim the sphere
         self.play(sphere.animate.set_opacity(0.15))
-        self.wait(2)
 
         def circle_fun(x):
             ''' Generates the parametric function of a circle with the given
@@ -232,7 +230,7 @@ class BallIntegral(ThreeDScene):
         strip = strip_fun(x_0, dx)
         strip.set_color(RED)
         self.play(Create(x_0_circ), Create(x_1_circ), Create(strip))
-        self.wait(2)
+        self.wait(26)
 
         # Draw the right triangle and label each line segment
         r_line = Line3D(start=ORIGIN, end=np.array(
@@ -255,15 +253,15 @@ class BallIntegral(ThreeDScene):
 
         self.play(Create(r_line))
         self.play(Write(r_label))
-        self.wait(2)
+        self.wait(1)
 
         self.play(Create(x_line))
         self.play(Write(x_label))
-        self.wait(2)
+        self.wait(1)
 
         self.play(Create(circ_r_line))
         self.play(Write(circ_r_label))
-        self.wait(2)
+        self.wait(1)
 
         # Volume of thin strip
         r_expr = MathTex(r"r = \sqrt{1 - x_1^2}")
@@ -273,8 +271,10 @@ class BallIntegral(ThreeDScene):
         txt_group.to_edge(UP + RIGHT)
         self.add_fixed_in_frame_mobjects(txt_group)
         self.remove(txt_group)
-        self.play(Create(txt_group))
-        self.wait(2)
+        self.play(Create(txt_group[0]))
+        self.wait(20)
+        self.play(Create(txt_group[1]))
+        self.wait(7)
 
         self.play(*[FadeOut(obj) for obj in self.mobjects])
 
@@ -296,8 +296,8 @@ class BallVolume(Scene):
         r_x1.next_to(beta_n, UP)
 
         self.play(FadeIn(r_x1))
-        self.play(Create(beta_n))
-        self.wait(3)
+        self.play(Create(beta_n), run_time=2)
+        self.wait(6)
 
         self.play(ReplacementTransform(beta_n, beta_n_2), FadeOut(r_x1))
         self.wait(3)
@@ -313,15 +313,19 @@ class BallVolume(Scene):
         beta_cn.next_to(t_int, DOWN)
         beta_cn.scale(0.7)
 
+        # It remains to figure out c_n
         self.play(FadeIn(t_int))
+        self.wait(5)
+
+        # Recurrence relation
         self.play(FadeIn(beta_cn))
-        self.wait(3)
+        self.wait(2)
 
         self.play(FadeOut(beta_n_2),
                   FadeOut(beta_cn),
                   Restore(t_int))
-        self.wait(3)
 
+        # Trig substitution
         trig_sub = MathTex(r"t = \sin(\theta)")
         trig_sub.next_to(t_int, DOWN)
         trig_sub.scale(0.7)
@@ -330,7 +334,6 @@ class BallVolume(Scene):
         dt.scale(0.7)
         self.play(FadeIn(trig_sub))
         self.play(FadeIn(dt))
-        self.wait(3)
 
         trig_int_n = MathTex(
             r"c_n &= \int_{-\frac{\pi}{2}}^{\frac{\pi}{2}} \cos^{n}(\theta) \, d\theta")
@@ -343,10 +346,11 @@ class BallVolume(Scene):
         self.play(trig_int_n.animate.shift(UP))
         trig_int_n_2.next_to(trig_int_n, DOWN)
         self.play(Create(trig_int_n_2))
-        self.wait(3)
+
         self.play(FadeOut(trig_int_n_2))
         self.play(trig_int_n.animate.shift(DOWN))
 
+        # Integration by parts
         u_dv = MathTex(
             r"u &= \cos^{n-1}(\theta) \\ dv &= \cos(\theta) \, d\theta")
         du_v = MathTex(
@@ -358,7 +362,6 @@ class BallVolume(Scene):
         du_v.next_to(u_dv, 2 * RIGHT)
         self.play(FadeIn(u_dv))
         self.play(FadeIn(du_v))
-        self.wait(3)
 
         ibp = MathTex(
             r"c_n = \cos^{n-1}(\theta) \sin(\theta) \bigg|_{-\frac{\pi}{2}}^{\frac{\pi}{2}} + \int_{-\frac{\pi}{2}}^{\frac{\pi}{2}} \sin^2(\theta) (n-1) \cos^{n-2}(\theta) \, d\theta")
@@ -366,8 +369,8 @@ class BallVolume(Scene):
         ibp_text.next_to(ibp, UP)
         self.play(FadeOut(u_dv), FadeOut(du_v),
                   ReplacementTransform(trig_int_n, ibp), FadeIn(ibp_text))
-        self.wait(3)
 
+        # First term on RHS is 0
         cos_is_zero = MathTex(
             r"\cos \left(-\frac{\pi}{2} \right) = \cos{\frac{\pi}{2}} = 0")
         cos_is_zero.next_to(ibp, DOWN)
@@ -380,19 +383,17 @@ class BallVolume(Scene):
             r"c_n = (n-1) \int_{-\frac{\pi}{2}}^{\frac{\pi}{2}} \sin^2(\theta) \cos^{n-2}(\theta) \, d\theta")
         self.play(ReplacementTransform(
             ibp, ibp_one_term), FadeOut(cos_is_zero))
-        self.wait(3)
 
+        # Trig identities
         sin_cos_id = MathTex(r"\sin^2(\theta) = 1 - \cos^2(\theta)")
         sin_cos_id.next_to(ibp_one_term, DOWN)
         sin_cos_id.scale(0.7)
         self.play(FadeIn(sin_cos_id))
-        self.wait(3)
 
         ibp_split = MathTex(
             r"c_n = (n-1) \left[\int_{-\frac{\pi}{2}}^{\frac{\pi}{2}} \cos^{n-2}(\theta) \, d\theta - \int_{-\frac{\pi}{2}}^{\frac{\pi}{2}} \cos^n(\theta) \, d\theta\right]")
         self.play(ReplacementTransform(
             ibp_one_term, ibp_split), FadeOut(sin_cos_id))
-        self.wait(3)
 
         self.play(ibp_split.animate.shift(UP))
         trig_int_n = MathTex(
@@ -401,18 +402,20 @@ class BallVolume(Scene):
         trig_int_n_2.next_to(trig_int_n, DOWN)
         self.play(FadeIn(trig_int_n))
         self.play(FadeIn(trig_int_n_2))
-        self.wait(3)
 
+        # Rearranging
         ibp_rearrange = MathTex(r"c_n = (n-1) c_{n-2} - (n-1) c_n")
         self.play(ReplacementTransform(
             ibp_split, ibp_rearrange), FadeOut(trig_int_n), FadeOut(trig_int_n_2))
-        self.wait(3)
 
         # Recurrence relation between c_n and c_{n-2}
         result = MathTex(r"c_n = \frac{n-1}{n}c_{n-2}")
         self.play(ReplacementTransform(ibp_rearrange, result))
-        self.wait(3)
+        self.wait(5)
 
+        # End of first part of recording
+
+        # Base cases
         base_text = Text("Base cases:")
         c_1 = MathTex(r"c_1 = \int_{-1}^1 (1 - t^2)^0 \, dt = 2")
         c_1.next_to(base_text, DOWN)
@@ -424,7 +427,7 @@ class BallVolume(Scene):
         base_group.move_to(ORIGIN)
         self.play(result.animate.to_edge(UP))
         self.play(FadeIn(base_group))
-        self.wait(3)
+        self.wait(6)
 
         result.generate_target()
         result.target.scale(0.7)
@@ -439,20 +442,20 @@ class BallVolume(Scene):
         self.play(ReplacementTransform(base_group, base_short),
                   MoveToTarget(result),
                   FadeIn(beta_cn))
-        self.wait(3)
+        self.wait(5)
 
         # Ratio between beta_n and kappa_n
         kappa_rel = MathTex(
             r"\kappa_{n - 1} \stackrel{\times 2}{\longrightarrow} \kappa_n")
         kappa_rel.next_to(beta_cn, DOWN)
         self.play(FadeIn(kappa_rel), FadeOut(citation))
-        self.wait(3)
+        self.wait(5)
 
         beta_rel = MathTex(
             r"\beta_{n - 1} \stackrel{\times c_n}{\longrightarrow} \beta_n")
         beta_rel.next_to(kappa_rel, DOWN, buff=MED_LARGE_BUFF)
         self.play(FadeIn(beta_rel))
-        self.wait(3)
+        self.wait(4)
 
         bk_group = VGroup(kappa_rel, beta_rel)
 
@@ -462,13 +465,17 @@ class BallVolume(Scene):
         ratio_rel.next_to(beta_cn, DOWN, buff=MED_LARGE_BUFF)
         self.play(FadeOut(bk_group),
                   FadeIn(ratio_rel))
-        self.wait(3)
+        self.wait(8)
+
+        # End of second part of recording
+
+        self.wait(15)
 
         prob = MathTex(
             r"P(\text{Random point in ball}) = \frac{\mathrm{Vol(Ball)}}{\mathrm{Vol(Box)}} = \frac{\beta_n}{\kappa_n}")
         prob.next_to(ratio_rel, DOWN)
         self.play(FadeIn(prob))
-        self.wait(3)
+        self.wait(29)
 
         ex = MathTex(r"E[X] = \frac{1}{P(\text{Random point in ball)}}")
         incr_fast = Text("increases faster than exponentially", color=RED)
@@ -476,8 +483,9 @@ class BallVolume(Scene):
         ex_group.arrange(DOWN)
         ex_group.next_to(prob, DOWN)
         self.play(FadeIn(ex))
+        self.wait(11)
         self.play(GrowFromCenter(incr_fast))
-        self.wait(5)
+        self.wait(1)
 
         self.play(*[FadeOut(obj) for obj in self.mobjects])
 
@@ -520,13 +528,13 @@ class SphericalCoord(ThreeDScene):
         top_circle.set_color(GREEN)
 
         self.play(Create(sphere))
-        self.wait(30)
+        self.wait(36)
 
         self.play(Create(equator))
-        self.wait(10)
+        self.wait(8)
 
         self.play(Create(top_circle))
-        self.wait(20)
+        self.wait(15)
 
         self.play(*[FadeOut(obj) for obj in self.mobjects])
 
@@ -536,6 +544,7 @@ class SphereDistIntro(Scene):
         r = 3
         circle = Circle(radius=r)
         self.play(Create(circle))
+        self.wait(2)
 
         theta_0 = PI / 3
         unit_vec = Vector([r * np.cos(theta_0), r * np.sin(theta_0), 0])
@@ -578,10 +587,10 @@ class SphereDistIntro(Scene):
         self.wait(1)
 
         self.play(Indicate(tasks[0]), FadeIn(rand_dir))
-        self.wait(1)
+        self.wait(8)
 
         self.play(FadeIn(sphere_def))
-        self.wait(1)
+        self.wait(20)
 
         self.play(*[FadeOut(obj) for obj in self.mobjects])
 
@@ -625,7 +634,7 @@ class PointOnSphereWrong(Scene):
         circle = Circle(radius=r)
 
         self.play(Create(square), Create(circle))
-        self.wait(1)
+        self.wait(5)
 
         def play_normalize_vec(arr):
             ''' Creates a vector based on arr and then normalizes it.
@@ -649,6 +658,9 @@ class PointOnSphereWrong(Scene):
             unit_vecs.append(play_normalize_vec(arr))
 
         self.play(*[FadeOut(unit_vec) for unit_vec in unit_vecs])
+        self.wait(20)
+
+        # End of first part of recording
 
         diag = Line(ORIGIN, [r, r, 0])
         vert = Line(ORIGIN, [0, r, 0])
@@ -660,9 +672,9 @@ class PointOnSphereWrong(Scene):
         vert_group = VGroup(vert, vert_label)
 
         self.play(Create(diag_group))
-        self.wait(1)
+        self.wait(4)
         self.play(Create(vert_group))
-        self.wait(1)
+        self.wait(4)
         self.play(FadeOut(diag_group), FadeOut(vert_group))
 
         eps = 0.1
@@ -697,6 +709,7 @@ class PointOnSphereWrong(Scene):
         self.wait(1)
 
         graph_group = Group(*[obj for obj in self.mobjects])
+        graph_group.remove(citation)
         self.play(graph_group.animate.to_edge(LEFT))
 
         len_eq = Text("Length of green arc = Length of blue arc",
@@ -814,21 +827,25 @@ class PointOnSphereRight(Scene):
         self.play(*[FadeOut(obj) for obj in self.mobjects])
 
 
-class BellCurve(Scene):
+def get_bell_curve_scene(scene, delay):
+    ''' Graph of the PDF of the normal distribution '''
+    axes = Axes(x_range=(-4, 4, 1), y_range=(0, 0.5, 0.1),
+                axis_config={"include_numbers": True})
+    scene.play(Create(axes))
+    scene.wait(1)
+
+    bell_curve = axes.plot(
+        lambda x: math.exp(-x ** 2 / 2) / math.sqrt(2 * PI), x_range=(-4, 4, 0.05))
+    bell_curve.set_color(YELLOW)
+    scene.play(Create(bell_curve))
+    scene.wait(delay)
+
+    scene.play(*[FadeOut(obj) for obj in scene.mobjects])
+
+
+class BellCurve1(Scene):
     def construct(self):
-        # Graph of the PDF of the normal distribution
-        axes = Axes(x_range=(-4, 4, 1), y_range=(0, 0.5, 0.1),
-                    axis_config={"include_numbers": True})
-        self.play(Create(axes))
-        self.wait(1)
-
-        bell_curve = axes.plot(
-            lambda x: math.exp(-x ** 2 / 2) / math.sqrt(2 * PI), x_range=(-4, 4, 0.05))
-        bell_curve.set_color(YELLOW)
-        self.play(Create(bell_curve))
-        self.wait(1)
-
-        self.play(*[FadeOut(obj) for obj in self.mobjects])
+        get_bell_curve_scene(self, 4)
 
 
 class RotationInvariant(Scene):
@@ -937,6 +954,9 @@ class UnifProof(Scene):
 
 
 # Play BellCurve scene again to mention Box-Muller
+class BellCurve2(Scene):
+    def construct(self):
+        get_bell_curve_scene(self, 24)
 
 
 class ChooseDist(Scene):
@@ -1077,7 +1097,7 @@ class NormalSampSim2D(Scene):
             dots.add(Dot(point, color=BLUE,
                      radius=DEFAULT_DOT_RADIUS / 3))
 
-        self.play(Create(dots), lag_ratio=0.1, run_time=2)
+        self.play(Create(dots), lag_ratio=0.1, run_time=5)
         self.wait(1)
 
         self.play(*[FadeOut(obj) for obj in self.mobjects])
@@ -1108,7 +1128,7 @@ class NormalSampSim3D(ThreeDScene):
             dots.add(Dot(point, color=BLUE,
                      radius=DEFAULT_DOT_RADIUS / 3))
 
-        self.play(Create(dots), lag_ratio=0.1, run_time=10)
+        self.play(Create(dots), lag_ratio=0.1, run_time=5)
         self.wait(1)
 
         self.play(*[FadeOut(obj) for obj in self.mobjects])
@@ -1135,7 +1155,7 @@ class Summary(Scene):
                              "Random point on sphere - standard multivariate normal",
                              "Random distance from origin - inverse transform sampling")
 
-        delays = [1, 1, 1, 1, 1]
+        delays = [19, 7, 5, 21, 10]
 
         fade_and_wait_blist(self, blist, delays)
 
@@ -1152,7 +1172,7 @@ class Reflection(Scene):
                              "Making this video is a rewarding experience",
                              "Teaching myself Manim - neat style, cool animations")
 
-        delays = [15, 15, 30]
+        delays = [16, 12, 26]
 
         fade_and_wait_blist(self, blist, delays)
 
