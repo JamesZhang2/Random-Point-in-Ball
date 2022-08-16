@@ -14,7 +14,7 @@ class Intro(Scene):
         hi.to_edge(UP, buff=0.2)
         justin.scale(0.9)
         justin.next_to(hi, DOWN)
-        self.play(Create(hi))
+        self.play(Write(hi))
         self.wait(9)
 
         self.play(FadeIn(justin))
@@ -843,12 +843,15 @@ class RotationInvariant(Scene):
         y1 = MathTex(r"Y_1 = q_{1, 1} X_1 + \ldots + q_{1, n} X_n")
         q_sq = MathTex(r"q_{1, 1}^2 + \ldots + q_{1, n}^2 = 1")
         mu_y1 = MathTex(
-            r"\mu(Y_1) = q_{1,1} \mu(X_1) + \ldots + q_{1,n} \mu(X_n) = 0")
+            r"E(Y_1) = q_{1,1} E(X_1) + \ldots + q_{1,n} E(X_n) = 0")
         var_y1 = MathTex(
             r"\mathrm{Var}(Y_1) = q_{1,1}^2 \mathrm{Var}(X_1) + \ldots + q_{1,n}^2 \mathrm{Var}(X_n) = q_{1,1}^2 + \ldots + q_{1,n}^2 = 1")
         y1_normal = MathTex(r"Y_1 \sim \mathcal{N}(0, 1)")
-        y_normal = Text("Therefore, Y = QX is still a standard multivariate normal",
+        cov = MathTex(r"& \mathrm{Cov}(Y_1, Y_2) \\ & = E[Y_1 Y_2] - E[Y_1] E[Y_2] \\ & = E[(q_{1,1} X_1 + \ldots + q_{1,n} X_n)(q_{2,1} X_1 + \ldots + q_{2,n} X_n)] \\ & = q_{1,1} q_{2,1} E[X_1^2] + \ldots + q_{1,n} q_{2,n} E[X_n^2] \\ & + \sum_{i,j \leq n, i \neq j} q_{1,i} q_{2,j} E[X_i X_j] \\ & = E[X_1^2] (q_{1,1} q_{2,1} + \ldots + q_{1,n} q_{2,n}) \\ & + \sum_{i,j \leq n, i \neq j} q_{1,i} q_{2,j} E[X_i] E[X_j] \\ & = 0")
+        cov.scale(0.7)
+        y_normal = Text("Y = QX is still a standard multivariate normal",
                         t2s={"Y = QX": ITALIC})
+        y_normal.scale(0.7)  # Text objects are bigger than MathTex objects
 
         qx_group = VGroup(q_mat, x_vec)
         qx_group.arrange(DOWN)
@@ -881,12 +884,19 @@ class RotationInvariant(Scene):
         self.play(ReplacementTransform(y1, y1_normal), FadeOut(mu_var_group))
         self.wait(1)
 
-        y_normal.scale(0.7)  # Text objects are bigger than MathTex objects
-        self.play(ReplacementTransform(y1_normal, y_normal))
+        self.play(y1_normal.animate.to_edge(UP))
         self.wait(1)
 
+        self.play(Write(cov))
+        self.wait(1)
+
+        self.play(FadeOut(y1_normal), FadeOut(cov), FadeIn(y_normal))
+        self.wait(1)
+
+        # Show image of the joint density function of the 2D Multivariate Normal
         joint_df = ImageMobject("images/Multivariate Normal PDF.png")
-        self.play(FadeIn(joint_df))
+        joint_df.scale(1.2)
+        self.play(FadeOut(y_normal), FadeIn(joint_df))
         self.wait(15)
 
         self.play(*[FadeOut(obj) for obj in self.mobjects])
@@ -931,14 +941,89 @@ class UnifProof(Scene):
 
 class ChooseDist(Scene):
     def construct(self):
-        pass  # TODO
+        # Title
+        title = Text("Cumulative Distribution Function (CDF)")
+        title.to_edge(UP)
+        self.play(Write(title))
+
+        # F_R(r)
+        fr_1 = MathTex(r"F_R(r) = P(R \leq r)")
+        fr_2 = MathTex(
+            r"= \frac{\text{Vol(Ball with radius $r$)}}{\text{Vol(Ball with radius $1$)}}")
+        fr_3 = MathTex(r"= r^n")
+
+        fr_group = VGroup(fr_1, fr_2, fr_3)
+        fr_group.arrange(DOWN, aligned_edge=LEFT)
+        fr_group.to_edge(LEFT)
+
+        self.play(FadeIn(fr_1))
+        self.wait(1)
+
+        self.play(FadeIn(fr_2))
+        self.wait(1)
+
+        self.play(FadeIn(fr_3))
+        self.wait(1)
+
+        # Graph
+        axes = Axes(x_range=(0, 1.2, 0.5), y_range=(0, 1.2, 0.5),
+                    axis_config={"include_numbers": True},
+                    x_length=config.frame_width / 2 - 1,
+                    y_length=config.frame_height - 3)
+
+        cdf = axes.plot(
+            lambda x: x ** 3, x_range=(0, 1, 0.02))
+        cdf.set_color(YELLOW)
+
+        x = 0.9
+        y = x ** 3
+        dot = Dot(point=axes.coords_to_point(x, y))
+
+        cdf2 = axes.plot(
+            lambda x: x ** 10, x_range=(0, 1, 0.02))
+        cdf2.set_color(YELLOW)
+
+        graph_group = VGroup(axes, cdf, cdf2, dot)
+        graph_group.next_to(fr_group, RIGHT, buff=LARGE_BUFF)
+        graph_group.shift(DOWN)
+
+        self.play(Create(axes))
+        self.wait(1)
+
+        self.play(Create(cdf))
+        self.wait(1)
+
+        self.play(Create(dot))
+        self.wait(1)
+
+        self.play(ReplacementTransform(cdf, cdf2),
+                  dot.animate.move_to(axes.coords_to_point(x, x ** 10)))
+        self.wait(1)
+
+        # Example for volume concentration near surface
+        concen_surf = MathTex(
+            r"\text{When } n = 500, \\ P(R \geq 0.99) & = 1 - 0.99^{500} \\ & \approx 99.3\%")
+        concen_surf.next_to(fr_group, DOWN)
+        concen_surf.scale(0.7)
+        self.play(FadeIn(concen_surf))
+        self.wait(1)
+
+        self.play(FadeOut(concen_surf))
+        self.wait(1)
+
+        r_expr = MathTex(r"R = F_R^{-1}(U) = \sqrt[n]{U}")
+        r_expr.next_to(fr_group, DOWN)
+        self.play(FadeIn(r_expr))
+        self.wait(1)
+
+        self.play(*[FadeOut(obj) for obj in self.mobjects])
 
 
 def random_unit_vector(n):
     ''' Returns a unit vector in R^n chosen uniformly at random. '''
     vec = np.empty(n)
     for i in range(n):
-        vec[i] = np.random.normal(0., 1.)
+        vec[i] = np.random.normal(0, 1)
     length = np.linalg.norm(vec)
     return vec / length
 
@@ -957,7 +1042,7 @@ class NormalSampSim2D(Scene):
         def random_unit_vector(n):
             vec = np.empty(n)
             for i in range(n):
-                vec[i] = np.random.normal(0., 1.)
+                vec[i] = np.random.normal(0, 1)
             length = np.linalg.norm(vec)
             return vec / length
         
@@ -975,7 +1060,7 @@ class NormalSampSim2D(Scene):
         self.play(FadeIn(ns_code_rendered))
         self.wait(30)
         self.play(FadeOut(ns_code_rendered))
-        self.wait(5)
+        self.wait(1)
 
         r = 3
         p = 3141  # Number of points
@@ -1029,12 +1114,32 @@ class NormalSampSim3D(ThreeDScene):
         self.play(*[FadeOut(obj) for obj in self.mobjects])
 
 
+def fade_and_wait_blist(scene, blist, delays):
+    ''' Fade in a bulleted list point by point,
+        where the list delays specifies the time to wait after each point.
+        Requires: blist and delays have the same length. '''
+    for i in range(len(delays)):
+        scene.play(FadeIn(blist[i]))
+        scene.wait(delays[i])
+
+
 class Summary(Scene):
     def construct(self):
         title = Text("Recap")
         title.to_edge(UP)
         self.play(Write(title))
-        pass  # TODO
+
+        blist = BulletedList("Rejection sampling - huge number of trials",
+                             "Spherical coordinates - complicated distribution",
+                             "Random direction + random distance",
+                             "Random point on sphere - standard multivariate normal",
+                             "Random distance from origin - inverse transform sampling")
+
+        delays = [1, 1, 1, 1, 1]
+
+        fade_and_wait_blist(self, blist, delays)
+
+        self.play(*[FadeOut(obj) for obj in self.mobjects])
 
 
 class Reflection(Scene):
@@ -1046,14 +1151,10 @@ class Reflection(Scene):
         blist = BulletedList("Higher-dimensional geometry is interesting",
                              "Making this video is a rewarding experience",
                              "Teaching myself Manim - neat style, cool animations")
-        self.play(FadeIn(blist[0]))
-        self.wait(15)
 
-        self.play(FadeIn(blist[1]))
-        self.wait(15)
+        delays = [15, 15, 30]
 
-        self.play(FadeIn(blist[2]))
-        self.wait(30)
+        fade_and_wait_blist(self, blist, delays)
 
         self.play(*[FadeOut(obj) for obj in self.mobjects])
 

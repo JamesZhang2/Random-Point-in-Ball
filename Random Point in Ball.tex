@@ -170,9 +170,19 @@ $X = \begin{bmatrix}
 
 Let $q_{1,1}, \ldots, q_{1,n}$ be the first row of $Q$. Then the first element of $Y = QX$ is $Y_1 = q_{1,1} X_1 + \ldots + q_{1,n} X_n$. Since $Q$ is orthogonal, $q_{1,1}^2 + \ldots + q_{1,n}^2 = 1$.
 
-Since the $X_i$'s are independent Gaussian random variables, the linear combination is still a Gaussian random variable. Moreover, by linearity of expectation, the mean of $Y_1$ is $\mu(Y_1) = q_{1,1} \mu(X_1) + \ldots + q_{1,n} \mu(X_n) = 0$, and by independence, the variance of $Y_1$ is $\Var(Y_1) = q_{1,1}^2 \Var(X_1) + \ldots + q_{1,n}^2 \Var(X_n) = q_{1,1}^2 + \ldots + q_{1,n}^2 = 1$.
+Since the $X_i$'s are independent Gaussian random variables, the linear combination is still a Gaussian random variable. Moreover, by linearity of expectation, the mean of $Y_1$ is $E[Y_1] = q_{1,1} E[X_1] + \ldots + q_{1,n} E[X_n] = 0$, and by independence, the variance of $Y_1$ is $\Var(Y_1) = q_{1,1}^2 \Var(X_1) + \ldots + q_{1,n}^2 \Var(X_n) = q_{1,1}^2 + \ldots + q_{1,n}^2 = 1$.
 
-We have shown that $Y_1$ is a standard normal random variable. This is the same for each component of $Y = QX$. A quick calculation of covariance shows that the components of $Y$ are independent, so $Y$ is still a standard multivariate normal. Thus $X$ is rotationally invariant.
+We have shown that $Y_1$ is a standard normal random variable. This is the same for each component of $Y = QX$. A quick calculation of covariance shows that the components of $Y$ are independent:
+\begin{align*}
+    \mathrm{Cov}(Y_1, Y_2)
+     & = E[Y_1 Y_2] - E[Y_1] E[Y_2]                                                                                            \\
+     & = E[(q_{1,1} X_1 + \ldots + q_{1,n} X_n)(q_{2,1} X_1 + \ldots + q_{2,n} X_n)]                                           \\
+     & = q_{1,1} q_{2,1} E[X_1^2] + \ldots + q_{1,n} q_{2,n} E[X_n^2] + \sum_{i,j \leq n, i \neq j} q_{1,i} q_{2,j} E[X_i X_j] \\
+     & = E[X_1^2] (q_{1,1} q_{2,1} + \ldots + q_{1,n} q_{2,n}) + \sum_{i,j \leq n, i \neq j} q_{1,i} q_{2,j} E[X_i] E[X_j]     \\
+     & = 0
+\end{align*}
+
+So $Y$ is still a standard multivariate normal. Thus $X$ is rotationally invariant.
 
 Here's a graph of the joint density function of a 2-dimensional standard multivariate normal random variable. We can see from the density function that the distribution is indeed symmetric around the origin.
 
@@ -202,7 +212,7 @@ Here's my python code that generates random points in unit balls using this proc
     def random_unit_vector(n):
         vec = np.empty(n)
         for i in range(n):
-            vec[i] = np.random.normal(0., 1.)
+            vec[i] = np.random.normal(0, 1)
         length = np.linalg.norm(vec)
         return vec / length
     
