@@ -946,23 +946,23 @@ class ChooseDist(Scene):
         title.to_edge(UP)
         self.play(Write(title))
 
-        # F_R(r)
-        fr_1 = MathTex(r"F_R(r) = P(R \leq r)")
-        fr_2 = MathTex(
+        # F_X(r)
+        fx_1 = MathTex(r"F_X(r) = P(X \leq r)")
+        fx_2 = MathTex(
             r"= \frac{\text{Vol(Ball with radius $r$)}}{\text{Vol(Ball with radius $1$)}}")
-        fr_3 = MathTex(r"= r^n")
+        fx_3 = MathTex(r"= r^n")
 
-        fr_group = VGroup(fr_1, fr_2, fr_3)
-        fr_group.arrange(DOWN, aligned_edge=LEFT)
-        fr_group.to_edge(LEFT)
+        fx_group = VGroup(fx_1, fx_2, fx_3)
+        fx_group.arrange(DOWN, aligned_edge=LEFT)
+        fx_group.to_edge(LEFT)
 
-        self.play(FadeIn(fr_1))
+        self.play(FadeIn(fx_1))
         self.wait(1)
 
-        self.play(FadeIn(fr_2))
+        self.play(FadeIn(fx_2))
         self.wait(1)
 
-        self.play(FadeIn(fr_3))
+        self.play(FadeIn(fx_3))
         self.wait(1)
 
         # Graph
@@ -984,7 +984,7 @@ class ChooseDist(Scene):
         cdf2.set_color(YELLOW)
 
         graph_group = VGroup(axes, cdf, cdf2, dot)
-        graph_group.next_to(fr_group, RIGHT, buff=LARGE_BUFF)
+        graph_group.next_to(fx_group, RIGHT, buff=LARGE_BUFF)
         graph_group.shift(DOWN)
 
         self.play(Create(axes))
@@ -1002,8 +1002,8 @@ class ChooseDist(Scene):
 
         # Example for volume concentration near surface
         concen_surf = MathTex(
-            r"\text{When } n = 500, \\ P(R \geq 0.99) & = 1 - 0.99^{500} \\ & \approx 99.3\%")
-        concen_surf.next_to(fr_group, DOWN)
+            r"\text{When } n = 500, \\ P(X \geq 0.99) & = 1 - 0.99^{500} \\ & \approx 99.3\%")
+        concen_surf.next_to(fx_group, DOWN)
         concen_surf.scale(0.7)
         self.play(FadeIn(concen_surf))
         self.wait(1)
@@ -1011,8 +1011,8 @@ class ChooseDist(Scene):
         self.play(FadeOut(concen_surf))
         self.wait(1)
 
-        r_expr = MathTex(r"R = F_R^{-1}(U) = \sqrt[n]{U}")
-        r_expr.next_to(fr_group, DOWN)
+        r_expr = MathTex(r"X = F_X^{-1}(U) = \sqrt[n]{U}")
+        r_expr.next_to(fx_group, DOWN)
         self.play(FadeIn(r_expr))
         self.wait(1)
 
