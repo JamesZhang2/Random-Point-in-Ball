@@ -621,6 +621,21 @@ def get_vert_arc(r, eps, color):
     return vert_arc
 
 
+def play_normalize_vec(scene, arr, r):
+    ''' Creates a vector based on arr and then normalizes it.
+        Returns the unit vector created.
+        Duration: 4 seconds
+    '''
+    unit_arr = arr / np.linalg.norm(arr) * r
+    vec = Vector(arr)
+    unit_vec = Vector(unit_arr)
+    scene.play(Create(vec))
+    scene.wait(1)
+    scene.play(ReplacementTransform(vec, unit_vec))
+    scene.wait(1)
+    return unit_vec  # So that we can fade it out later
+
+
 class PointOnSphereWrong(Scene):
     def construct(self):
         citation = Text(
@@ -636,26 +651,13 @@ class PointOnSphereWrong(Scene):
         self.play(Create(square), Create(circle))
         self.wait(5)
 
-        def play_normalize_vec(arr):
-            ''' Creates a vector based on arr and then normalizes it.
-                Returns the unit vector created.
-            '''
-            unit_arr = arr / np.linalg.norm(arr) * r
-            vec = Vector(arr)
-            unit_vec = Vector(unit_arr)
-            self.play(Create(vec))
-            self.wait(1)
-            self.play(ReplacementTransform(vec, unit_vec))
-            self.wait(1)
-            return unit_vec  # So that we can fade it out later
-
-        arrs = [np.array([0.6 * r, -0.4 * r]),
-                np.array([-0.93 * r, -0.78 * r])]
+        arrs = [np.array([0.6 * r, -0.4 * r, 0]),
+                np.array([-0.93 * r, -0.78 * r, 0])]
 
         unit_vecs = []
 
         for arr in arrs:
-            unit_vecs.append(play_normalize_vec(arr))
+            unit_vecs.append(play_normalize_vec(self, arr, r))
 
         self.wait(27)
         self.play(*[FadeOut(unit_vec) for unit_vec in unit_vecs])
@@ -690,23 +692,23 @@ class PointOnSphereWrong(Scene):
         self.play(FadeIn(diag_poly))
         self.wait(1)
         self.play(FadeIn(vert_poly))
-        self.wait(8)
+        self.wait(1)
 
         diag_arc = get_diag_arc(r, eps, GREEN_D)
         diag_arr = np.array([0.87 * r, (0.87 - 0.2 * eps) * r, 0])
-        play_normalize_vec(diag_arr)
+        play_normalize_vec(self, diag_arr, r)
 
         self.play(Create(diag_arc))
         self.play(Indicate(diag_arc))
-        self.wait(6)
+        self.wait(1)
 
         vert_arc = get_vert_arc(r, eps, BLUE_D)
         vert_arr = np.array([-eps * 0.05 * r, 0.47 * r, 0])
-        play_normalize_vec(vert_arr)
+        play_normalize_vec(self, vert_arr, r)
 
         self.play(Create(vert_arc))
         self.play(Indicate(vert_arc))
-        self.wait(5)
+        self.wait(0.5)
 
         graph_group = Group(*[obj for obj in self.mobjects])
         graph_group.remove(citation)
@@ -748,7 +750,7 @@ class PointOnSphereWrong(Scene):
 
         self.play(ReplacementTransform(root_2_sqr, root_n_pow),
                   ReplacementTransform(prob_eq_area, prob_eq_vol))
-        self.wait(3)
+        self.wait(5)
 
         self.play(GrowFromCenter(incr_fast))
         self.wait(15)
@@ -761,9 +763,9 @@ class RotateSquare(Scene):
         r = 2
         square = Square(side_length=r * 2)
         self.play(Create(square))
-        self.wait(10)
+        self.wait(6)
         self.play(Rotate(square, angle=PI / 4))
-        self.wait(15)
+        self.wait(12)
         self.play(Uncreate(square))
 
 
@@ -784,7 +786,7 @@ class RotatePlane(LinearTransformationScene):
         matrix = [[np.cos(theta), -np.sin(theta)],
                   [np.sin(theta), np.cos(theta)]]
         self.apply_matrix(matrix)
-        self.wait(10)
+        self.wait(12)
 
         self.play(*[FadeOut(obj) for obj in self.mobjects])
 
@@ -811,19 +813,19 @@ class PointOnSphereRight(Scene):
         q_group.arrange(DOWN)
 
         self.play(FadeIn(q_mat_2d))
-        self.wait(10)
+        self.wait(5)
 
         self.play(FadeIn(orthonormal))
-        self.wait(10)
+        self.wait(4)
 
         self.play(FadeIn(norm_1))
-        self.wait(10)
+        self.wait(2)
 
         self.play(FadeIn(dot_0))
-        self.wait(10)
+        self.wait(3)
 
         self.play(FadeIn(rows_also))
-        self.wait(10)
+        self.wait(12)
 
         self.play(*[FadeOut(obj) for obj in self.mobjects])
 
@@ -846,7 +848,7 @@ def get_bell_curve_scene(scene, delay):
 
 class BellCurve1(Scene):
     def construct(self):
-        get_bell_curve_scene(self, 4)
+        get_bell_curve_scene(self, 34)
 
 
 class RotationInvariant(Scene):
@@ -874,48 +876,48 @@ class RotationInvariant(Scene):
         qx_group = VGroup(q_mat, x_vec)
         qx_group.arrange(DOWN)
         self.play(FadeIn(qx_group))
-        self.wait(10)
+        self.wait(13)
 
         self.play(ReplacementTransform(q_mat, y_qx), FadeOut(x_vec))
-        self.wait(10)
+        self.wait(4)
 
         y1.next_to(y_qx, DOWN)
         self.play(y_qx.animate.shift(UP), FadeIn(y1))
-        self.wait(10)
+        self.wait(5)
 
         self.play(FadeOut(y_qx), y1.animate.shift(UP * 3))
-        self.wait(10)
+        self.wait(3)
 
         mu_var_group = VGroup(q_sq, mu_y1, var_y1)
         mu_var_group.scale(0.7)
         mu_var_group.arrange(DOWN)
         mu_var_group.next_to(y1, DOWN)
         self.play(FadeIn(q_sq))
-        self.wait(10)
+        self.wait(14)
 
         self.play(FadeIn(mu_y1))
         self.wait(5)
 
         self.play(FadeIn(var_y1))
-        self.wait(10)
+        self.wait(2)
 
         self.play(ReplacementTransform(y1, y1_normal), FadeOut(mu_var_group))
-        self.wait(10)
+        self.wait(9)
 
         self.play(y1_normal.animate.to_edge(UP))
         self.wait(1)
 
         self.play(Write(cov))
-        self.wait(5)
+        self.wait(1)
 
         self.play(FadeOut(y1_normal), FadeOut(cov), FadeIn(y_normal))
-        self.wait(10)
+        self.wait(5)
 
         # Show image of the joint density function of the 2D Multivariate Normal
         joint_df = ImageMobject("images/Multivariate Normal PDF.png")
         joint_df.scale(1.2)
         self.play(FadeOut(y_normal), FadeIn(joint_df))
-        self.wait(15)
+        self.wait(12)
 
         self.play(*[FadeOut(obj) for obj in self.mobjects])
 
@@ -925,7 +927,12 @@ class UnifProof(Scene):
         r = 3
         circle = Circle(radius=r)
         self.play(Create(circle))
-        self.wait(10)
+        self.wait(1)
+
+        vec1 = play_normalize_vec(self, [-1.44 * r, 0.67 * r, 0], r)
+        vec2 = play_normalize_vec(self, [-0.36 * r, -0.29 * r, 0], r)
+        self.wait(6)
+        self.play(FadeOut(vec1), FadeOut(vec2))
 
         eps = 0.1
         diag_arc = get_diag_arc(r, eps, GREEN_D)
@@ -933,24 +940,26 @@ class UnifProof(Scene):
         a_label = MathTex(r"A")
         a_label.move_to(diag_arc.get_center() + UR * MED_LARGE_BUFF)
 
-        self.play(Create(diag_arc))
-        self.play(Indicate(diag_arc))
-        self.play(Write(a_label))
-        self.wait(7)
+        self.play(Create(diag_arc), run_time=0.5)
+        self.play(Indicate(diag_arc), run_time=0.5)
+        self.play(Write(a_label), run_time=0.5)
+        self.wait(0.5)
 
         vert_arc = get_vert_arc(r, eps, BLUE_D)
         b_label = MathTex(r"B")
         b_label.next_to(vert_arc, UP)
 
-        self.play(Create(vert_arc))
-        self.play(Indicate(vert_arc))
-        self.play(Write(b_label))
-        self.wait(7)
+        self.play(Create(vert_arc), run_time=0.5)
+        self.play(Indicate(vert_arc), run_time=0.5)
+        self.play(Write(b_label), run_time=0.5)
+        self.wait(5)
 
         self.play(FadeOut(vert_arc))
         self.play(Rotate(diag_arc, PI / 4, about_point=ORIGIN))
+        self.wait(17)
+
         self.play(FadeIn(diag_arc_copy))
-        self.wait(10)
+        self.wait(18)
 
         self.play(*[FadeOut(obj) for obj in self.mobjects])
 
@@ -967,7 +976,7 @@ class ChooseDist(Scene):
         title = Text("Cumulative Distribution Function (CDF)")
         title.to_edge(UP)
         self.play(Write(title))
-        self.wait(10)
+        self.wait(19)
 
         # F_X(r)
         fx_1 = MathTex(r"F_X(r) = P(X \leq r)")
@@ -980,10 +989,10 @@ class ChooseDist(Scene):
         fx_group.to_edge(LEFT)
 
         self.play(FadeIn(fx_1))
-        self.wait(10)
+        self.wait(15)
 
         self.play(FadeIn(fx_2))
-        self.wait(10)
+        self.wait(9)
 
         self.play(FadeIn(fx_3))
 
@@ -1018,7 +1027,7 @@ class ChooseDist(Scene):
 
         self.play(ReplacementTransform(cdf, cdf2),
                   dot.animate.move_to(axes.coords_to_point(x, x ** 10)))
-        self.wait(7)
+        self.wait(12)
 
         # Example for volume concentration near surface
         concen_surf = MathTex(
@@ -1026,15 +1035,15 @@ class ChooseDist(Scene):
         concen_surf.next_to(fx_group, DOWN)
         concen_surf.scale(0.7)
         self.play(FadeIn(concen_surf))
-        self.wait(10)
+        self.wait(12)
 
         self.play(FadeOut(concen_surf))
-        self.wait(1)
+        self.wait(6)
 
         r_expr = MathTex(r"X = F_X^{-1}(U) = \sqrt[n]{U}")
         r_expr.next_to(fx_group, DOWN)
         self.play(FadeIn(r_expr))
-        self.wait(10)
+        self.wait(7)
 
         self.play(*[FadeOut(obj) for obj in self.mobjects])
 
@@ -1078,7 +1087,7 @@ class NormalSampSim2D(Scene):
             background_stroke_width=0,
             insert_line_no=False)
         self.play(FadeIn(ns_code_rendered))
-        self.wait(30)
+        self.wait(40)
         self.play(FadeOut(ns_code_rendered))
         self.wait(1)
 
