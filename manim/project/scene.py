@@ -28,9 +28,9 @@ class Intro(Scene):
             t2c={"high-dimensional ball": RED})
         problem.shift(UP)
         circ_def = MathTex(
-            r"C(r) = \{(x, y) : x^2 + y^2 = r^2\}")
+            r"C(r) = \{(x, y) : x^2 + y^2 \leq r^2\}")
         ball_def = MathTex(
-            r"B_n(r) = \{(x_1, \ldots, x_n) : x_1^2 + \ldots + x_n^2 = r^2\}")
+            r"B_n(r) = \{(x_1, \ldots, x_n) : x_1^2 + \ldots + x_n^2 \leq r^2\}")
         circ_def.next_to(problem, DOWN)
         ball_def.next_to(circ_def, DOWN)
 
